@@ -45,13 +45,13 @@
 ## Instalación rápida
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TU_USUARIO/castopost/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ernestoacostame/castopost/main/install.sh | bash
 ```
 
 O descarga el instalador manualmente:
 
 ```bash
-wget https://raw.githubusercontent.com/TU_USUARIO/castopost/main/install.sh
+wget https://raw.githubusercontent.com/ernestoacostame/castopost/main/install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -68,7 +68,7 @@ sudo apt install cmake ninja-build g++ \
   ffmpeg
 
 # Clonar y compilar
-git clone https://github.com/TU_USUARIO/castopost.git
+git clone https://github.com/ernestoacostame/castopost.git
 cd castopost
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -Wno-dev
 cmake --build build --parallel
@@ -79,7 +79,7 @@ sudo cmake --install build
 
 ```bash
 sudo pacman -S cmake ninja qt6-base qt6-declarative qt6-multimedia ffmpeg
-git clone https://github.com/TU_USUARIO/castopost.git
+git clone https://github.com/ernestoacostame/castopost.git
 cd castopost
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -Wno-dev
 cmake --build build --parallel
@@ -91,7 +91,7 @@ sudo cmake --install build
 ```bash
 sudo dnf install cmake ninja-build gcc-c++ \
   qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qtmultimedia-devel ffmpeg
-git clone https://github.com/TU_USUARIO/castopost.git
+git clone https://github.com/ernestoacostame/castopost.git
 cd castopost
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -Wno-dev
 cmake --build build --parallel
