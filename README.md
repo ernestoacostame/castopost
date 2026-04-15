@@ -31,7 +31,9 @@
 
 ## Capturas
 
-> *(añade aquí tus capturas de pantalla)*
+![castopost_dash](https://github.com/user-attachments/assets/ca9843c0-1631-4a82-b7b7-a6a25e9ff044)
+![castopost_dash2](https://github.com/user-attachments/assets/27a061ce-bf05-4c4d-b836-7c3b9da37e2e)
+
 
 ## Requisitos
 
