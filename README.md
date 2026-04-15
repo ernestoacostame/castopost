@@ -107,7 +107,7 @@ Al ejecutar por primera vez se abre la pantalla de **Ajustes**. Necesitas:
 1. **URL** de tu instancia Castopod (ej: `https://podcasts.tudominio.com`)
 2. **Usuario y contraseña API** — en el `.env` de Castopod como `restapi.basicAuth`
 3. **Handle del podcast** — el slug de tu podcast en Castopod
-4. **ID de usuario** — Admin → Usuarios → editar → número en la URL
+4. **ID de usuario** — Admin → Usuarios → editar → número en la URL (Si solo tienes un usuario, normalmente es el 1)
 
 ## Datos y configuración
 
