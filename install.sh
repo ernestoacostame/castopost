@@ -23,6 +23,16 @@ warn()    { echo -e "${YELLOW}⚠ $*${RESET}"; }
 error()   { echo -e "${RED}✕ $*${RESET}"; exit 1; }
 header()  { echo -e "\n${BOLD}$*${RESET}\n"; }
 
+# ── Limpieza de Caché (NUEVO) ─────────────────────────────
+header "0/4  Limpiando entorno"
+BUILD_DIR_CACHE="${HOME}/.cache/castopost-build"
+
+if [ -d "$BUILD_DIR_CACHE" ]; then
+    info "Eliminando caché antigua en $BUILD_DIR_CACHE..."
+    rm -rf "$BUILD_DIR_CACHE"
+fi
+success "Entorno limpio"
+
 # ── Banner ────────────────────────────────────────────────
 echo -e "${CYAN}"
 cat << 'BANNER'
@@ -113,15 +123,16 @@ success "Dependencias listas"
 # ── Descargar / actualizar código ─────────────────────────
 header "2/4  Obteniendo el código fuente"
 
-BUILD_DIR="${HOME}/.cache/castopost-build"
-
-if [ -d "$BUILD_DIR/.git" ]; then
-    info "Actualizando repositorio existente..."
-    git -C "$BUILD_DIR" pull --rebase
+# Lógica inteligente: ¿Estamos ya en la carpeta del proyecto?
+if [ -f "CMakeLists.txt" ] && grep -q "CastoPOST" "CMakeLists.txt"; then
+    BUILD_DIR="$(pwd)"
+    info "Se ha detectado el código local. Usando: $BUILD_DIR"
 else
-    info "Clonando repositorio..."
+    BUILD_DIR="$BUILD_DIR_CACHE"
+    info "No se detectó código local. Clonando de GitHub..."
     git clone --depth=1 "$REPO_URL" "$BUILD_DIR"
 fi
+
 
 success "Código listo en $BUILD_DIR"
 
