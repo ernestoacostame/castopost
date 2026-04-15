@@ -218,30 +218,133 @@ void CastopodClient::createEpisodeDraft(int podcastId, const PublishRequest &req
 
     connect(reply, &QNetworkReply::uploadProgress, this, &CastopodClient::uploadProgress);
 
-    handleReply(reply, [this, req](const QJsonDocument &doc) {
-        // Castopod puede devolver el ID en varias estructuras:
-        // {"id": 7, ...}  o  {"data": {"id": 7}}  o  [{"id": 7}]
-        int episodeId = 0;
+    connect(reply, &QNetworkReply::finished, this,
+            [this, reply, req]() {
+        reply->deleteLater();
 
-        if (doc.isObject()) {
-            QJsonObject o = doc.object();
-            // Caso directo: {"id": 7}
-            if (o.contains("id"))
-                episodeId = o["id"].toInt();
-            // Caso anidado: {"data": {"id": 7}}
-            else if (o.contains("data") && o["data"].isObject())
-                episodeId = o["data"].toObject()["id"].toInt();
-            // Algunos endpoints devuelven {"episode": {"id": 7}}
-            else if (o.contains("episode") && o["episode"].isObject())
-                episodeId = o["episode"].toObject()["id"].toInt();
-        } else if (doc.isArray() && !doc.array().isEmpty()) {
-            episodeId = doc.array().first().toObject()["id"].toInt();
+        if (reply->error() != QNetworkReply::NoError) {
+            emit errorOccurred(QString("Error de conexión: %1").arg(reply->errorString()));
+            return;
+        }
+
+        int httpCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QByteArray raw = reply->readAll();
+        QJsonDocument doc = QJsonDocument::fromJson(raw);
+
+        if (httpCode >= 400) {
+            QString msg;
+            if (!doc.isNull() && doc.isObject()) {
+                auto o = doc.object();
+                msg = o["messages"].toObject()["error"].toString(
+                      o["message"].toString(
+                      o["error"].toString()));
+            }
+            if (msg.isEmpty())
+                msg = QString::fromUtf8(raw.left(400));
+            emit errorOccurred(QString("Castopod HTTP %1: %2").arg(httpCode).arg(msg));
+            return;
+        }
+
+        // Try to extract episode ID from JSON response
+        int episodeId = 0;
+        if (!doc.isNull()) {
+            if (doc.isObject()) {
+                QJsonObject o = doc.object();
+                // Caso directo: {"id": 7}
+                if (o.contains("id"))
+                    episodeId = o["id"].toInt();
+                // Caso anidado: {"data": {"id": 7}}
+                else if (o.contains("data") && o["data"].isObject())
+                    episodeId = o["data"].toObject()["id"].toInt();
+                // Algunos endpoints devuelven {"episode": {"id": 7}}
+                else if (o.contains("episode") && o["episode"].isObject())
+                    episodeId = o["episode"].toObject()["id"].toInt();
+                // Otro posible campo: "episode_id"
+                else if (o.contains("episode_id"))
+                    episodeId = o["episode_id"].toInt();
+                // Si aún no, intentar con otros campos comunes de ID
+                if (episodeId == 0) {
+                    static const QStringList idKeys = {"id", "episode_id", "audio_id", "podcast_episode_id"};
+                    for (const QString &key : idKeys) {
+                        if (o.contains(key)) {
+                            QJsonValue val = o.value(key);
+                            if (val.isDouble()) {
+                                episodeId = val.toInt();
+                                break;
+                            } else if (val.isString()) {
+                                bool ok;
+                                int candidate = val.toString().toInt(&ok);
+                                if (ok) {
+                                    episodeId = candidate;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                // Si todavía no, buscar cualquier clave que termine con "_id"
+                if (episodeId == 0) {
+                    for (auto it = o.begin(); it != o.end(); ++it) {
+                        QString key = it.key();
+                        if (key.endsWith("_id")) {
+                            QJsonValue val = it.value();
+                            if (val.isDouble()) {
+                                episodeId = val.toInt();
+                                break;
+                            } else if (val.isString()) {
+                                bool ok;
+                                int candidate = val.toString().toInt(&ok);
+                                if (ok) {
+                                    episodeId = candidate;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (doc.isArray() && !doc.array().isEmpty()) {
+                episodeId = doc.array().first().toObject()["id"].toInt();
+            }
+        }
+
+        // If still not found, try to extract from Location header
+        if (episodeId == 0) {
+            QUrl location = reply->header(QNetworkRequest::LocationHeader).toUrl();
+            if (location.isValid()) {
+                QString path = location.path();
+                QRegularExpression re1("/episodes/(\\d+)");
+                QRegularExpression re2("/episode/(\\d+)");
+                auto match = re1.match(path);
+                if (!match.hasMatch()) {
+                    match = re2.match(path);
+                }
+                if (match.hasMatch()) {
+                    episodeId = match.captured(1).toInt();
+                }
+            }
+        }
+
+        // Fallback regex search in raw response
+        if (episodeId == 0 && !raw.isEmpty()) {
+            QRegularExpression reAudioId(R"xyz("audio_id"\s*:\s*"([0-9]+)")xyz");
+            QRegularExpressionMatch match = reAudioId.match(raw);
+            if (match.hasMatch()) {
+                episodeId = match.captured(1).toInt();
+                qWarning() << "[CastopodClient] Extracted episode ID from audio_id via regex:" << episodeId;
+            } else {
+                QRegularExpression reId(R"("id"\s*:\s*([0-9]+))");
+                match = reId.match(raw);
+                if (match.hasMatch()) {
+                    episodeId = match.captured(1).toInt();
+                    qWarning() << "[CastopodClient] Extracted episode ID from id via regex:" << episodeId;
+                }
+            }
         }
 
         if (!episodeId) {
-            // Log completo para diagnóstico
             qWarning() << "[CastopodClient] Respuesta inesperada al crear episodio:"
                        << doc.toJson(QJsonDocument::Compact);
+            qWarning() << "[CastopodClient] Raw response:" << raw.left(500);
             emit errorOccurred(
                 QString("Castopod no devolvió el ID del episodio. Respuesta: %1")
                     .arg(QString::fromUtf8(doc.toJson(QJsonDocument::Compact)).left(200)));

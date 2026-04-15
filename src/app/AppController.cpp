@@ -263,7 +263,9 @@ void AppController::publishCastopodDraft(int episodeId)
 
 QString AppController::saveDraft(const QVariantMap &fields)
 {
-    return m_draftStore->saveDraft(m_activePodcast, fields);
+    QString id = m_draftStore->saveDraft(m_activePodcast, fields);
+    emit localDraftsChanged();
+    return id;
 }
 
 QVariantList AppController::getDrafts()
@@ -279,6 +281,7 @@ QVariantMap AppController::getDraft(const QString &draftId)
 void AppController::deleteDraft(const QString &draftId)
 {
     m_draftStore->deleteDraft(m_activePodcast, draftId);
+    emit localDraftsChanged();
 }
 
 // ──────────────────────────────────────────────────────────────

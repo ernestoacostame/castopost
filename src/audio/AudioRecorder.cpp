@@ -77,9 +77,11 @@ void AudioRecorder::start()
 
     m_elapsed   = 0;
     m_recording = true;
+    m_paused    = false;
     m_ticker.start();
 
     emit recordingChanged(true);
+    emit pausedChanged();
     emit elapsedChanged(0);
 }
 
@@ -100,8 +102,10 @@ void AudioRecorder::stop()
     m_wavFile.close();
 
     m_recording = false;
+    m_paused    = false;
     m_level     = 0.f;
     emit recordingChanged(false);
+    emit pausedChanged();
     emit levelChanged(0.f);
 
     emit recordingFinished(m_wavFile.fileName());
@@ -113,7 +117,9 @@ void AudioRecorder::discard()
         m_ticker.stop();
         if (m_source) { m_source->stop(); delete m_source; m_source = nullptr; }
         m_recording = false;
+        m_paused    = false;
         emit recordingChanged(false);
+        emit pausedChanged();
     }
     if (m_wavFile.isOpen()) m_wavFile.close();
     if (!m_wavFile.fileName().isEmpty() && QFile::exists(m_wavFile.fileName()))
@@ -149,6 +155,43 @@ void AudioRecorder::onTick()
 {
     ++m_elapsed;
     emit elapsedChanged(m_elapsed);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Pause / Resume
+// ──────────────────────────────────────────────────────────────
+
+void AudioRecorder::pause()
+{
+    if (!m_recording || m_paused) return;
+
+    if (m_source) {
+        m_source->stop();
+    }
+    m_ticker.stop();
+    m_paused = true;
+    emit pausedChanged();
+}
+
+void AudioRecorder::resume()
+{
+    if (!m_recording || !m_paused) return;
+
+    if (m_source) {
+        // Disconnect any previous connection to avoid duplicates
+        if (m_device) {
+            disconnect(m_device, &QIODevice::readyRead, this, &AudioRecorder::onAudioData);
+        }
+        m_device = m_source->start();
+        if (!m_device) {
+            emit errorOccurred("No se pudo reanudar la grabación.");
+            return;
+        }
+        connect(m_device, &QIODevice::readyRead, this, &AudioRecorder::onAudioData);
+    }
+    m_ticker.start();
+    m_paused = false;
+    emit pausedChanged();
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -117,6 +117,7 @@ signals:
     void activePodcastChanged();
     void podcastsChanged();
     void episodesChanged();
+    void localDraftsChanged();
     void conversionProgressChanged(int percent);
     void uploadProgressChanged(int percent);
     void episodePublishedOk(const QString &title);

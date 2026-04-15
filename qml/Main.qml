@@ -100,6 +100,7 @@ ApplicationWindow {
                 })
             }
             onOpenPublish: stack.replace(publishPage)
+            onOpenDrafts: stack.replace(draftsPage)
         }
     }
     Component { id: publishPage;   PublishPage   {} }

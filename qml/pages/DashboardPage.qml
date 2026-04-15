@@ -11,8 +11,25 @@ Page {
     signal openLocalDraft(string draftId)
     // Señal para navegar a PublishPage limpio
     signal openPublish()
+    // Señal para navegar a página de borradores
+    signal openDrafts()
 
-    Component.onCompleted: App.refreshEpisodes()
+    property var localDraftsList: []
+    function reloadLocalDrafts() {
+        localDraftsList = App.getDrafts()
+    }
+
+    Component.onCompleted: {
+        App.refreshEpisodes()
+        reloadLocalDrafts()
+    }
+
+    Connections {
+        target: App
+        function onLocalDraftsChanged() {
+            reloadLocalDrafts()
+        }
+    }
 
     header: ToolBar {
         Material.background: theme.bgHeader
@@ -56,7 +73,7 @@ Page {
             // ── Borradores locales ────────────────────────────
             Loader {
                 width: parent.width
-                active: App.getDrafts().length > 0
+                active: localDraftsList.length > 0
                 sourceComponent: Column {
                     width: parent.width
                     spacing: 6
@@ -66,10 +83,15 @@ Page {
                         text: "Borradores locales"
                         color: theme.textSecondary; font.pixelSize: 12; font.bold: true; font.letterSpacing: 1
                         leftPadding: 20; bottomPadding: 4
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.openDrafts()
+                        }
                     }
 
                     Repeater {
-                        model: App.getDrafts()
+                        model: localDraftsList
                         delegate: Rectangle {
                             required property var modelData
                             width: parent.width - 40
@@ -130,6 +152,11 @@ Page {
                         text: "Borradores en Castopod"
                         color: theme.textSecondary; font.pixelSize: 12; font.bold: true; font.letterSpacing: 1
                         leftPadding: 20; bottomPadding: 4
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.openDrafts()
+                        }
                     }
 
                     Repeater {
@@ -178,7 +205,7 @@ Page {
             anchors.centerIn: parent
             spacing: 4
             Label { text: value.toString(); font.pixelSize: 28; font.bold: true; color: "white"; anchors.horizontalCenter: parent.horizontalCenter }
-            Label { text: label; font.pixelSize: 11; color: theme.textSecondary; anchors.horizontalCenter: parent.horizontalCenter }
+            Label { text: label; font.pixelSize: 11; color: "#ffffff"; opacity: 0.9; anchors.horizontalCenter: parent.horizontalCenter }
         }
     }
 }

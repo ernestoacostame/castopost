@@ -264,8 +264,7 @@ Page {
                     TextField {
                         id: epNumField
                         width: parent.width
-                        // Se rellena automáticamente con el siguiente número
-                        text: App.nextEpisodeNumber.toString()
+                        // Se rellena automáticamente con el siguiente número para la temporada seleccionada
                         inputMethodHints: Qt.ImhDigitsOnly
                         validator: IntValidator { bottom: 1 }
                         Material.accent: Material.DeepPurple
@@ -278,6 +277,7 @@ Page {
                         id: seasonField
                         width: parent.width
                         placeholderText: "—"
+                        text: "1"
                         inputMethodHints: Qt.ImhDigitsOnly
                         validator: IntValidator { bottom: 1 }
                         Material.accent: Material.DeepPurple
@@ -468,13 +468,21 @@ Page {
     function reset() {
         titleField.text = ""; descField.text = ""
         slugField.text  = ""
-        epNumField.text = App.nextEpisodeNumber.toString()
-        seasonField.text = ""; pubDateField.text = ""
+        seasonField.text = "1"; pubDateField.text = ""
         explicitCheck.checked = false; typeCombo.currentIndex = 0
         root.audioFilePath = ""; root.coverFilePath = ""
         root.draftId = ""; root.hasSavedAudio = false
         root.savedAudioName = ""
         recorderWidget.recordedFilePath = ""
+        // Update episode number for default season
+        var s = parseInt(seasonField.text) || 0;
+        epNumField.text = App.nextEpisodeForSeason(s);
+    }
+
+    Component.onCompleted: {
+        // Set initial episode number based on default season
+        var s = parseInt(seasonField.text) || 0;
+        epNumField.text = App.nextEpisodeForSeason(s);
     }
 
     // Actualizar el número si cambia mientras la página está abierta
@@ -483,8 +491,10 @@ Page {
         function onEpisodePublishedOk() { root.reset() }
         function onEpisodesChanged() {
             // Solo actualizar si el usuario no ha tocado el campo
-            if (root.draftId === "")
-                epNumField.text = App.nextEpisodeNumber.toString()
+            if (root.draftId === "") {
+                let s = parseInt(seasonField.text) || 0
+                epNumField.text = App.nextEpisodeForSeason(s).toString()
+            }
         }
     }
 }

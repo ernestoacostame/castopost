@@ -25,6 +25,7 @@ class AudioRecorder : public QObject
     Q_PROPERTY(bool    recording READ isRecording NOTIFY recordingChanged)
     Q_PROPERTY(float   level     READ level       NOTIFY levelChanged)
     Q_PROPERTY(int     elapsed   READ elapsed     NOTIFY elapsedChanged)
+    Q_PROPERTY(bool    paused    READ isPaused    NOTIFY pausedChanged)
 
 public:
     explicit AudioRecorder(QObject *parent = nullptr);
@@ -33,15 +34,19 @@ public:
     bool  isRecording() const { return m_recording; }
     float level()       const { return m_level; }
     int   elapsed()     const { return m_elapsed; }
+    bool  isPaused()    const { return m_paused; }
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void stop();
     Q_INVOKABLE void discard();
+    Q_INVOKABLE void pause();
+    Q_INVOKABLE void resume();
 
 signals:
     void recordingChanged(bool recording);
     void levelChanged(float level);
     void elapsedChanged(int seconds);
+    void pausedChanged();
     void recordingFinished(const QString &wavFilePath);
     void errorOccurred(const QString &message);
 
@@ -60,6 +65,7 @@ private:
     QTimer        m_ticker;
 
     bool  m_recording = false;
+    bool  m_paused    = false;
     float m_level     = 0.f;
     int   m_elapsed   = 0;
 

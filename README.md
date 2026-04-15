@@ -31,9 +31,7 @@
 
 ## Capturas
 
-![castopost_dash](https://github.com/user-attachments/assets/ca9843c0-1631-4a82-b7b7-a6a25e9ff044)
-![castopost_dash2](https://github.com/user-attachments/assets/27a061ce-bf05-4c4d-b836-7c3b9da37e2e)
-
+> *(añade aquí tus capturas de pantalla)*
 
 ## Requisitos
 
@@ -107,7 +105,7 @@ Al ejecutar por primera vez se abre la pantalla de **Ajustes**. Necesitas:
 1. **URL** de tu instancia Castopod (ej: `https://podcasts.tudominio.com`)
 2. **Usuario y contraseña API** — en el `.env` de Castopod como `restapi.basicAuth`
 3. **Handle del podcast** — el slug de tu podcast en Castopod
-4. **ID de usuario** — Admin → Usuarios → editar → número en la URL (Si solo tienes un usuario, normalmente es el 1)
+4. **ID de usuario** — Admin → Usuarios → editar → número en la URL
 
 ## Datos y configuración
 

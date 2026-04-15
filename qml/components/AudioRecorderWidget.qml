@@ -11,13 +11,13 @@ Column {
     property string recordedFilePath: ""
     signal fileReady(string filePath)
 
-    // ── VU-meter (solo mientras graba) ────────────────────
+    // ── VU-meter (solo mientras graba y no está pausado) ─────────
     Rectangle {
         width: parent.width
         height: 10
         radius: 5
         color: theme.bgInput
-        visible: App.recorder.recording
+        visible: App.recorder.recording && !App.recorder.paused
 
         Rectangle {
             width: parent.width * Math.min(App.recorder.level * 3, 1.0)
@@ -42,9 +42,13 @@ Column {
             let s = App.recorder.elapsed
             let m = Math.floor(s / 60)
             let ss = s % 60
-            return "⏺  Grabando  " + m + ":" + (ss < 10 ? "0" : "") + ss
+            if (App.recorder.paused) {
+                return "⏸  Pausado   " + m + ":" + (ss < 10 ? "0" : "") + ss
+            } else {
+                return "⏺  Grabando  " + m + ":" + (ss < 10 ? "0" : "") + ss
+            }
         }
-        color: "#f44336"
+        color: App.recorder.paused ? "#ff9800" : "#f44336"
         font.pixelSize: 13; font.bold: true
     }
 
@@ -57,36 +61,82 @@ Column {
         color: App.recorder.recording ? theme.errorBg : "#4a148c"
         Behavior on color { ColorAnimation { duration: 200 } }
 
+        // Grabar (cuando no hay grabación en curso)
+        Label {
+            id: startLabel
+            anchors.centerIn: parent
+            text: "⏺  Grabar"
+            color: "white"; font.pixelSize: 13; font.bold: true
+            visible: !App.recorder.recording
+        }
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            visible: !App.recorder.recording
+            onClicked: {
+                App.recorder.start()
+                root.recordedFilePath = ""
+            }
+        }
+
+        // Controles durante la grabación
         Row {
             anchors.centerIn: parent
-            spacing: 8
+            spacing: 10
+            visible: App.recorder.recording
+            // Indicador de grabación (solo cuando se graba activamente)
             Rectangle {
                 width: 10; height: 10; radius: 5
                 color: "white"
                 anchors.verticalCenter: parent.verticalCenter
-                visible: App.recorder.recording
+                visible: !App.recorder.paused
                 SequentialAnimation on opacity {
-                    running: App.recorder.recording
+                    running: !App.recorder.paused
                     loops: Animation.Infinite
                     NumberAnimation { to: 0.2; duration: 500 }
                     NumberAnimation { to: 1.0; duration: 500 }
                 }
             }
-            Label {
-                text: App.recorder.recording ? "⏹  Parar grabación" : "⏺  Grabar"
-                color: "white"; font.pixelSize: 14; font.bold: true
-                anchors.verticalCenter: parent.verticalCenter
+            // Botón de pausa/reanudar
+            Rectangle {
+                width: pauseResumeLabel.implicitWidth + 24
+                height: 36
+                radius: 18
+                color: "#1a3a5c"
+                Label {
+                    id: pauseResumeLabel
+                    anchors.centerIn: parent
+                    text: App.recorder.paused ? "▶  Reanudar" : "⏸  Pausar"
+                    color: "white"; font.pixelSize: 13; font.bold: true
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        if (App.recorder.paused) {
+                            App.recorder.resume()
+                        } else {
+                            App.recorder.pause()
+                        }
+                    }
+                }
             }
-        }
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                if (App.recorder.recording) {
-                    App.recorder.stop()
-                } else {
-                    App.recorder.start()
-                    root.recordedFilePath = ""
+            // Botón de parar
+            Rectangle {
+                width: stopLabel.implicitWidth + 24
+                height: 36
+                radius: 18
+                color: "#4a0a0a"
+                Label {
+                    id: stopLabel
+                    anchors.centerIn: parent
+                    text: "⏹  Parar"
+                    color: "white"; font.pixelSize: 13; font.bold: true
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: App.recorder.stop()
                 }
             }
         }
