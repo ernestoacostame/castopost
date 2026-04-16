@@ -89,7 +89,7 @@ Page {
             Rectangle {
                 width: parent.width
                 height: visible ? 48 : 0
-                visible: root.hasSavedAudio && root.audioFilePath !== "" || root.hasSavedAudio && audioTabs.currentIndex === 2
+                visible: root.hasSavedAudio && (root.audioFilePath !== "" || audioTabs.currentIndex === 2)
                 radius: 8
                 color: theme.successBg
                 border.color: "#2e7d32"; border.width: 1
@@ -120,10 +120,20 @@ Page {
                             root.hasSavedAudio  = false
                             root.savedAudioName = ""
                             root.audioFilePath  = ""
+                            urlField.text = ""
                             recorderWidget.recordedFilePath = ""
                             audioTabs.currentIndex = 0
                         }
                     }
+                }
+                
+                // Mover el MouseArea fuera del Row para evitar superposición
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    // Solo activo cuando no hay audio seleccionado (para diálogo de archivo)
+                    enabled: !root.hasSavedAudio && root.audioFilePath === ""
+                    onClicked: audioFileDialog.open()
                 }
             }
 
@@ -315,19 +325,24 @@ Page {
                     onClicked: templateDialog.open()
                 }
             }
-            TextArea {
-                id: descField
+            ScrollView {
                 width: parent.width
                 height: 130
-                wrapMode: TextArea.WrapAtWordBoundaryOrAnywhere
-                verticalAlignment: TextEdit.AlignTop
-                topPadding: 8
-                leftPadding: 8
-                rightPadding: 8
-                Material.accent: Material.DeepPurple
-                background: Rectangle {
-                    color: theme.bgSurface; radius: 4
-                    border.color: descField.activeFocus ? theme.accent : theme.border
+                clip: true
+                
+                TextArea {
+                    id: descField
+                    width: parent.width - 20  // Dejar espacio para la barra de scroll
+                    wrapMode: TextArea.WrapAtWordBoundaryOrAnywhere
+                    verticalAlignment: TextEdit.AlignTop
+                    topPadding: 8
+                    leftPadding: 8
+                    rightPadding: 8
+                    Material.accent: Material.DeepPurple
+                    background: Rectangle {
+                        color: theme.bgSurface; radius: 4
+                        border.color: descField.activeFocus ? theme.accent : theme.border
+                    }
                 }
             }
 

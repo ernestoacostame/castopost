@@ -7,11 +7,9 @@ Page {
     id: root
     background: Rectangle { color: theme.bgBase }
 
-    // Señal para navegar a PublishPage con un borrador local cargado
+    // Señales
     signal openLocalDraft(string draftId)
-    // Señal para navegar a PublishPage limpio
     signal openPublish()
-    // Señal para navegar a página de borradores
     signal openDrafts()
 
     property var localDraftsList: []
@@ -40,10 +38,23 @@ Page {
                 font.pixelSize: 15; font.bold: true; color: "white"
                 Layout.fillWidth: true
             }
-            ToolButton {
-                text: "↻"; font.pixelSize: 18
-                onClicked: App.refreshEpisodes()
-                ToolTip.text: "Actualizar"; ToolTip.visible: hovered
+            Row {
+                spacing: 8
+                Button {
+                    text: "Publicar nuevo episodio"
+                    Material.background: "#6200ee"; Material.foreground: "white"
+                    onClicked: root.openPublish()
+                }
+                Button {
+                    text: "Borradores locales"
+                    flat: true; Material.foreground: "#bb86fc"
+                    onClicked: root.openDrafts()
+                }
+                ToolButton {
+                    text: "↻"; font.pixelSize: 18
+                    onClicked: App.refreshEpisodes()
+                    ToolTip.text: "Actualizar"; ToolTip.visible: hovered
+                }
             }
         }
     }
@@ -55,7 +66,7 @@ Page {
 
         Column {
             width: parent.width
-            topPadding: 4
+            topPadding: 16
             bottomPadding: 20
             spacing: 0
 

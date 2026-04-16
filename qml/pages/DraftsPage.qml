@@ -93,11 +93,8 @@ Page {
                                         font.pixelSize: 11
                                         Material.foreground: theme.accentLight
                                         onClicked: {
-                                            // Navegar a PublishPage con el borrador cargado
-                                            // (la página publicar expone loadDraft)
-                                            let pub = stack.replace(publishPageComp)
-                                            if (pub && pub.loadDraft)
-                                                pub.loadDraft(modelData.draft_id)
+                                            console.log("Opening draft:", modelData.draft_id)
+                                            openLocalDraft(modelData.draft_id)
                                         }
                                     }
                                     Button {
@@ -149,6 +146,8 @@ Page {
     }
 
     // Referencia al stack padre para navegar
-    property var stack: null
-    property var publishPageComp: null
+    property var stack: StackView.view
+    property Component publishPageComp: Component { PublishPage {} }
+
+    signal openLocalDraft(string draftId)
 }

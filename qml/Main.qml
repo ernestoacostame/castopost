@@ -104,7 +104,20 @@ ApplicationWindow {
         }
     }
     Component { id: publishPage;   PublishPage   {} }
-    Component { id: draftsPage;    DraftsPage    {} }
+    Component { 
+        id: draftsPage
+        DraftsPage {
+            onOpenLocalDraft: (draftId) => {
+                stack.replace(publishPage)
+                Qt.callLater(() => {
+                    if (stack.currentItem && stack.currentItem.loadDraft) {
+                        console.log("Loading draft in PublishPage:", draftId)
+                        stack.currentItem.loadDraft(draftId)
+                    }
+                })
+            }
+        }
+    }
     Component { id: templatesPage; TemplatesPage {} }
     Component { id: podcastsPage;  PodcastsPage  {} }
     Component { id: settingsPage;  SettingsPage  {} }
