@@ -31,7 +31,9 @@
 
 ## Capturas
 
-> *(añade aquí tus capturas de pantalla)*
+<img width="1142" height="1186" alt="Screenshot_20260417_182644" src="https://github.com/user-attachments/assets/c8f793c5-23b1-47e6-9e90-8e95f8f29f20" />
+<img width="1142" height="1186" alt="Screenshot_20260417_182633" src="https://github.com/user-attachments/assets/0e127562-072f-46ff-939c-f4ae1a9c65c3" />
+
 
 ## Requisitos
 
