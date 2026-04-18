@@ -95,6 +95,81 @@ Page {
                 }
             }
 
+            // ── Configuración de audio ──────────────────────────────────
+            Label { 
+                text: "AUDIO"; 
+                color: theme.textMuted; 
+                font.pixelSize: 10; 
+                font.letterSpacing: 1.5 
+            }
+
+            Row {
+                width: parent.width
+                spacing: 12
+                
+                Column {
+                    width: Math.floor(parent.width / 2) - 6
+                    
+                    Label { 
+                        text: "Normalización LUFS predeterminada"; 
+                        color: theme.textSecondary; 
+                        font.pixelSize: 11 
+                    }
+                    
+                    ComboBox {
+                        id: defaultLufsCombo
+                        width: parent.width
+                        model: [
+                            {text: "-14 LUFS (más fuerte)", value: -14},
+                            {text: "-16 LUFS (estándar)", value: -16},
+                            {text: "-18 LUFS (más suave)", value: -18},
+                            {text: "-24 LUFS (EBU)", value: -24}
+                        ]
+                        textRole: "text"
+                        valueRole: "value"
+                            
+                        Component.onCompleted: {
+                            // Load current setting
+                            let settings = App.loadSettings()
+                            let current = settings.lufsTarget || -16
+                            for (let i = 0; i < model.length; i++) {
+                                if (model[i].value === current) {
+                                    currentIndex = i
+                                    break
+                                }
+                            }
+                        }
+                            
+                        onActivated: {
+                            App.setLufsTarget(currentValue)
+                        }
+                    }
+                        
+                    Label {
+                        text: {
+                            switch(defaultLufsCombo.currentValue) {
+                                case -14: return "Para contenido más fuerte (música, etc.)"
+                                case -16: return "Estándar de podcast (recomendado)"
+                                case -18: return "Para contenido más suave"
+                                case -24: return "Estándar EBU para broadcast"
+                                default: return ""
+                            }
+                        }
+                        color: theme.textMuted
+                        font.pixelSize: 10
+                        wrapMode: Text.WordWrap
+                        width: parent.width
+                        topPadding: 4
+                    }
+                }
+                
+                // You could add more audio settings here in the future
+                Column {
+                    width: Math.floor(parent.width / 2) - 6
+                    // Placeholder for future audio settings
+                }
+            }
+
             Button {
                 width: parent.width; height: 48
                 text: App.configured ? "Guardar ajustes" : "Guardar y comenzar"

@@ -29,6 +29,7 @@ class AppController : public QObject
     Q_PROPERTY(bool    busy          READ isBusy        NOTIFY busyChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(bool    statusIsError READ statusIsError NOTIFY statusMessageChanged)
+    Q_PROPERTY(int     lufsTarget    READ lufsTarget    WRITE setLufsTarget NOTIFY lufsTargetChanged)
 
     // ── Podcast activo ───────────────────────────────────────
     Q_PROPERTY(QString activePodcast READ activePodcast WRITE setActivePodcast
@@ -110,6 +111,10 @@ public:
     Q_INVOKABLE void clearStatus();
     Q_INVOKABLE bool ffmpegAvailable() const;
 
+    // LUFS target
+    Q_INVOKABLE void setLufsTarget(int target);
+    int lufsTarget() const { return m_lufsTarget; }
+
 signals:
     void configuredChanged();
     void busyChanged();
@@ -121,6 +126,7 @@ signals:
     void conversionProgressChanged(int percent);
     void uploadProgressChanged(int percent);
     void episodePublishedOk(const QString &title);
+    void lufsTargetChanged();
 
 private:
     void setBusy(bool busy);
@@ -148,4 +154,5 @@ private:
     bool         m_statusIsError   = false;
     int          m_conversionProgress = 0;
     int          m_uploadProgress     = 0;
+    int          m_lufsTarget      = -16;
 };

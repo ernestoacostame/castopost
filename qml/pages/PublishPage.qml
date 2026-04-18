@@ -47,6 +47,23 @@ Page {
             root.hasSavedAudio  = false
             root.savedAudioName = ""
         }
+        
+        // Load LUFS setting if saved in draft
+        if (d.lufsTarget !== undefined) {
+            App.setLufsTarget(d.lufsTarget)
+            // Update combo box
+            for (let i = 0; i < lufsCombo.model.length; i++) {
+                if (lufsCombo.model[i].value === d.lufsTarget) {
+                    lufsCombo.currentIndex = i
+                    break
+                }
+            }
+            if (lufsCombo.currentIndex === -1) {
+                // Custom value
+                lufsCombo.currentIndex = 4
+                customLufsField.text = d.lufsTarget
+            }
+        }
     }
 
     header: ToolBar {
@@ -253,7 +270,6 @@ Page {
                 }
             }
 
-            Rectangle { width: parent.width; height: 1; color: theme.border }
 
             // ── Título ────────────────────────────────────────
             Label { text: "Título *"; color: theme.textSecondary; font.pixelSize: 11 }
@@ -411,6 +427,219 @@ Page {
                 }
             }
 
+            Rectangle { width: parent.width; height: 1; color: theme.border }
+
+            // ── Configuración de normalización ──────────────────────────
+            Rectangle {
+                width: parent.width
+                height: visible ? lufsContainer.height + 20 : 0
+                visible: !App.ffmpegAvailable() ? false : (audioTabs.currentIndex !== 2)
+                color: "transparent"
+                
+                Column {
+                    id: lufsContainer
+                    width: parent.width
+                    spacing: 8
+                    
+                    Label {
+                        text: "Normalización LUFS"
+                        color: theme.accentLight
+                        font.pixelSize: 10
+                        font.bold: true
+                        font.letterSpacing: 1.5
+                    }
+                    
+                    Rectangle {
+                        width: parent.width
+                        implicitHeight: contentColumn.implicitHeight + 24
+                        radius: 8
+                        color: theme.bgInput
+                        border.color: theme.border
+                        border.width: 1
+                        clip: true
+
+                        Column {
+                            id: contentColumn
+                            width: parent.width
+                            spacing: 6
+                            padding: 12
+
+                            // Descripción
+                            Label {
+                                width: parent.width
+                                text: "Selecciona el nivel objetivo de normalización loudness para el audio:"
+                                color: theme.textSecondary
+                                font.pixelSize: 11
+                                wrapMode: Text.WordWrap
+                            }
+                            
+                            // Botones para valores predefinidos
+                            Row {
+                                width: parent.width
+                                spacing: 8
+                                
+                                // Botón -14
+                                Rectangle {
+                                    width: 48
+                                    height: 32
+                                    radius: 4
+                                    color: App.lufsTarget === -14 ? "#6200ee" : theme.bgSurface
+                                    border.color: App.lufsTarget === -14 ? "#6200ee" : theme.border
+                                    border.width: 1
+                                    
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "-14"
+                                        color: App.lufsTarget === -14 ? "white" : theme.textPrimary
+                                        font.pixelSize: 12
+                                        font.bold: App.lufsTarget === -14
+                                    }
+                                    
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: App.setLufsTarget(-14)
+                                    }
+                                }
+                                
+                                // Botón -16
+                                Rectangle {
+                                    width: 48
+                                    height: 32
+                                    radius: 4
+                                    color: App.lufsTarget === -16 ? "#6200ee" : theme.bgSurface
+                                    border.color: App.lufsTarget === -16 ? "#6200ee" : theme.border
+                                    border.width: 1
+                                    
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "-16"
+                                        color: App.lufsTarget === -16 ? "white" : theme.textPrimary
+                                        font.pixelSize: 12
+                                        font.bold: App.lufsTarget === -16
+                                    }
+                                    
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: App.setLufsTarget(-16)
+                                    }
+                                }
+                                
+                                // Botón -18
+                                Rectangle {
+                                    width: 48
+                                    height: 32
+                                    radius: 4
+                                    color: App.lufsTarget === -18 ? "#6200ee" : theme.bgSurface
+                                    border.color: App.lufsTarget === -18 ? "#6200ee" : theme.border
+                                    border.width: 1
+                                    
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "-18"
+                                        color: App.lufsTarget === -18 ? "white" : theme.textPrimary
+                                        font.pixelSize: 12
+                                        font.bold: App.lufsTarget === -18
+                                    }
+                                    
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: App.setLufsTarget(-18)
+                                    }
+                                }
+                                
+                                // Botón -24
+                                Rectangle {
+                                    width: 48
+                                    height: 32
+                                    radius: 4
+                                    color: App.lufsTarget === -24 ? "#6200ee" : theme.bgSurface
+                                    border.color: App.lufsTarget === -24 ? "#6200ee" : theme.border
+                                    border.width: 1
+                                    
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "-24"
+                                        color: App.lufsTarget === -24 ? "white" : theme.textPrimary
+                                        font.pixelSize: 12
+                                        font.bold: App.lufsTarget === -24
+                                    }
+                                    
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: App.setLufsTarget(-24)
+                                    }
+                                }
+                                
+                                // Campo de texto para valor personalizado
+                                TextField {
+                                    id: customLufsField
+                                    width: Math.min(Math.max(parent.width - 4*48 - 4*8, 120), 200)
+                                    height: 32
+                                    placeholderText: "otro valor"
+                                    inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhSignedNumbers
+                                    validator: IntValidator { bottom: -24; top: -14 }
+                                    
+                                    // Mostrar el valor personalizado actual
+                                    Component.onCompleted: {
+                                        let target = App.lufsTarget
+                                        if (target !== -14 && target !== -16 && target !== -18 && target !== -24) {
+                                            text = target.toString()
+                                        }
+                                    }
+                                    
+                                    onEditingFinished: {
+                                        if (text !== "") {
+                                            let value = parseInt(text)
+                                            if (!isNaN(value) && value >= -24 && value <= -14) {
+                                                App.setLufsTarget(value)
+                                            } else {
+                                                // Si el valor no es válido, restaurar el actual
+                                                text = App.lufsTarget.toString()
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Actualizar el campo cuando cambia el valor desde otro lugar
+                                    Connections {
+                                        target: App
+                                        function onLufsTargetChanged() {
+                                            let target = App.lufsTarget
+                                            if (target === -14 || target === -16 || target === -18 || target === -24) {
+                                                customLufsField.text = ""
+                                            } else {
+                                                customLufsField.text = target.toString()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Descripción del valor seleccionado
+                            Label {
+                                width: parent.width
+                                text: {
+                                    switch(App.lufsTarget) {
+                                        case -14: return "• -14 LUFS: Para contenido más fuerte (música, promociones, etc.)"
+                                        case -16: return "• -16 LUFS: Estándar recomendado para podcasts (balance óptimo)"
+                                        case -18: return "• -18 LUFS: Para contenido más suave (conversación tranquila, ASMR)"
+                                        case -24: return "• -24 LUFS: Estándar EBU R128 para broadcast televisivo/radio"
+                                        default: return "• " + App.lufsTarget + " LUFS: Valor personalizado"
+                                    }
+                                }
+                                color: theme.textMuted
+                                font.pixelSize: 10
+                                wrapMode: Text.WordWrap
+                                topPadding: 4
+                            }
+                        }
+                    }
+                }
+            }
+
             // ── Publicar ──────────────────────────────────────
             Button {
                 width: parent.width
@@ -473,6 +702,7 @@ Page {
             seasonNumber:  parseInt(seasonField.text) || 0,
             type:          typeCombo.currentText,
             isExplicit:    explicitCheck.checked,
+            lufsTarget:    App.lufsTarget, // Save LUFS target
             // Guardar referencia al audio
             audioFilePath: audioTabs.currentIndex !== 2 ? root.audioFilePath : "",
             audioUrl:      audioTabs.currentIndex === 2 ? urlField.text.trim() : "",

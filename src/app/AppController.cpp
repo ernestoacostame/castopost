@@ -14,6 +14,7 @@ AppController::AppController(QObject *parent)
     , m_templateStore(new TemplateStore(this))
     , m_podcastStore(new PodcastStore(this))
     , m_settings("castopost", "castopost")
+    , m_lufsTarget(m_settings.value("lufsTarget", -16).toInt())
 {
     // ── API signals ─────────────────────────────────────────
     connect(m_api, &CastopodClient::episodesFetched, this,
@@ -68,11 +69,28 @@ AppController::AppController(QObject *parent)
 
     // finished conectado dinámicamente en publishEpisode (lleva closure con fields)
 
+    // Set initial LUFS target in AudioProcessor
+    m_audioProc->setLufsTarget(m_lufsTarget);
+    
     // ── Aplicar config guardada ──────────────────────────────
     if (isConfigured()) {
         applyApiConfig();
         m_activePodcast = m_settings.value("defaultHandle").toString();
     }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  LUFS target
+// ──────────────────────────────────────────────────────────────
+
+void AppController::setLufsTarget(int target)
+{
+    if (m_lufsTarget == target) return;
+    
+    m_lufsTarget = target;
+    m_settings.setValue("lufsTarget", target);
+    m_audioProc->setLufsTarget(target);
+    emit lufsTargetChanged();
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -96,6 +114,7 @@ void AppController::saveSettings(const QString &instanceUrl,
     m_settings.setValue("apiPassword",    apiPassword);
     m_settings.setValue("defaultHandle",  defaultHandle);
     m_settings.setValue("userId",         userId);
+    m_settings.setValue("lufsTarget",     m_lufsTarget); // Save LUFS target
     applyApiConfig();
     if (m_activePodcast.isEmpty()) setActivePodcast(defaultHandle);
     emit configuredChanged();
@@ -110,6 +129,7 @@ QVariantMap AppController::loadSettings() const
         {"apiPassword",   m_settings.value("apiPassword").toString()},
         {"defaultHandle", m_settings.value("defaultHandle").toString()},
         {"userId",        m_settings.value("userId", 1).toInt()},
+        {"lufsTarget",    m_settings.value("lufsTarget", -16).toInt()}, // Include LUFS target
     };
 }
 
@@ -209,8 +229,11 @@ void AppController::publishEpisode(const QVariantMap &fields,
     emit conversionProgressChanged(0);
 
     if (!audioFilePath.isEmpty()) {
-        // Convertir primero a MP3 -16 LUFS
-        setStatus("Convirtiendo audio a MP3...");
+        // Ensure AudioProcessor has current LUFS target
+        m_audioProc->setLufsTarget(m_lufsTarget);
+        
+        // Convertir primero a MP3 con el LUFS objetivo
+        setStatus(QString("Convirtiendo audio a MP3 (target: %1 LUFS)...").arg(m_lufsTarget));
 
         // Conectar finished una sola vez con el closure que tiene los fields
         connect(m_audioProc, &AudioProcessor::finished, this,

@@ -30,6 +30,7 @@ QString AudioProcessor::ffmpegPath()
 
 AudioProcessor::AudioProcessor(QObject *parent)
     : QObject(parent)
+    , m_lufsTarget(-16)
 {
 }
 
@@ -87,7 +88,7 @@ void AudioProcessor::cancel()
 
 void AudioProcessor::startPass1()
 {
-    emit logLine("Pass 1/2: midiendo loudness con EBU R128...");
+    emit logLine(QString("Pass 1/2: midiendo loudness con EBU R128 (target: %1 LUFS)...").arg(m_lufsTarget));
 
     m_process = new QProcess(this);
     connect(m_process,
@@ -102,7 +103,7 @@ void AudioProcessor::startPass1()
     QStringList args = {
         "-y", "-i", m_inputPath,
         "-vn",
-        "-af", "loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json",
+        "-af", QString("loudnorm=I=%1:TP=-1.5:LRA=11:print_format=json").arg(m_lufsTarget),
         "-f", "null", "/dev/null"
     };
 
@@ -136,7 +137,7 @@ void AudioProcessor::onPass1Finished(int exitCode, QProcess::ExitStatus /*status
 
 void AudioProcessor::startPass2()
 {
-    emit logLine("Pass 2/2: convirtiendo a MP3 192k con normalización -16 LUFS...");
+    emit logLine(QString("Pass 2/2: convirtiendo a MP3 192k con normalización %1 LUFS...").arg(m_lufsTarget));
 
     m_process = new QProcess(this);
     connect(m_process,
@@ -150,14 +151,15 @@ void AudioProcessor::startPass2()
     QString afFilter;
     if (m_stats.valid) {
         afFilter = QString(
-            "loudnorm=I=-16:TP=-1.5:LRA=11"
-            ":measured_I=%1:measured_TP=%2:measured_LRA=%3"
-            ":measured_thresh=%4:offset=%5:linear=true"
-        ).arg(m_stats.input_i, m_stats.input_tp, m_stats.input_lra,
+            "loudnorm=I=%1:TP=-1.5:LRA=11"
+            ":measured_I=%2:measured_TP=%3:measured_LRA=%4"
+            ":measured_thresh=%5:offset=%6:linear=true"
+        ).arg(QString::number(m_lufsTarget),
+              m_stats.input_i, m_stats.input_tp, m_stats.input_lra,
               m_stats.input_thresh, m_stats.target_offset);
     } else {
         // Fallback de una sola pasada
-        afFilter = "loudnorm=I=-16:TP=-1.5:LRA=11";
+        afFilter = QString("loudnorm=I=%1:TP=-1.5:LRA=11").arg(m_lufsTarget);
         emit logLine("Advertencia: usando normalización de una sola pasada (fallback).");
     }
 
@@ -200,6 +202,21 @@ void AudioProcessor::onProcessError(QProcess::ProcessError err)
     Q_UNUSED(err)
     emit errorOccurred(QString("Error al ejecutar FFmpeg: %1")
                            .arg(m_process ? m_process->errorString() : "proceso inválido"));
+}
+
+// ──────────────────────────────────────────────────────────────
+//  LUFS target configuration
+// ──────────────────────────────────────────────────────────────
+
+void AudioProcessor::setLufsTarget(int target)
+{
+    // Valid range for broadcast LUFS (typically -24 to -14)
+    if (target < -24 || target > -14) {
+        qWarning() << "LUFS target out of range, using -16";
+        m_lufsTarget = -16;
+    } else {
+        m_lufsTarget = target;
+    }
 }
 
 // ──────────────────────────────────────────────────────────────

@@ -34,6 +34,10 @@ public:
     // Devuelve la ruta al MP3 resultante (válida solo después de finished)
     QString outputPath() const { return m_outputPath; }
 
+    // LUFS target configuration
+    void setLufsTarget(int target);
+    int lufsTarget() const { return m_lufsTarget; }
+
     // Comprueba si ffmpeg está disponible en PATH
     static bool ffmpegAvailable();
     static QString ffmpegPath();
@@ -69,4 +73,7 @@ private:
         QString target_offset;
         bool    valid = false;
     } m_stats;
+
+    // LUFS target configuration
+    int m_lufsTarget = -16; // Default to -16 LUFS
 };
