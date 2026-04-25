@@ -92,7 +92,8 @@ void CastopodClient::fetchRecentEpisodes(int podcastId, int limit)
 
 void CastopodClient::fetchAllEpisodes(int podcastId)
 {
-    // Paginación completa (replica PHP getAllEpisodes)
+    constexpr int kMaxEpisodes = 500;   // prevent memory exhaustion
+
     struct State {
         QList<Episode> all;
         int offset   = 0;
@@ -108,24 +109,36 @@ void CastopodClient::fetchAllEpisodes(int podcastId)
         q.addQueryItem("order",      "newest");
 
         handleReply(m_nam->get(buildRequest("/episodes/", q)),
-                    [this, state, podcastId, fetchPage](const QJsonDocument &doc) mutable {
-            QJsonArray arr = doc.isArray() ? doc.array()
-                                           : doc.object()["data"].toArray();
-            if (arr.isEmpty() || state->offset >= 2000) {
-                emit episodesFetched(podcastId, state->all);
-                return;
-            }
-            for (const QJsonValue &v : arr)
-                state->all << Episode::fromJson(v.toObject());
+                    [this, state, podcastId, &fetchPage](const QJsonDocument &doc) mutable {
+                        QJsonArray arr = doc.isArray() ? doc.array()
+                                                       : doc.object()["data"].toArray();
+                        if (arr.isEmpty()) {
+                            emit episodesFetched(podcastId, state->all);
+                            return;
+                        }
 
-            if (arr.count() < state->pageSize) {
-                emit episodesFetched(podcastId, state->all);
-            } else {
-                state->offset += state->pageSize;
-                fetchPage();
-            }
-        });
+                        for (const QJsonValue &v : arr)
+                            state->all << Episode::fromJson(v.toObject());
+
+                        int fetchedCount = arr.size();
+                        state->offset += fetchedCount;   // fix: use actual count
+
+                        // Check cap
+                        if (state->all.size() >= kMaxEpisodes) {
+                            qWarning() << "fetchAllEpisodes: capped at" << kMaxEpisodes
+                                       << "episodes for podcast" << podcastId;
+                            emit episodesFetched(podcastId, state->all);
+                            return;
+                        }
+
+                        // Continue if we got a full page
+                        if (fetchedCount == state->pageSize && state->offset < 2000)
+                            fetchPage();
+                        else
+                            emit episodesFetched(podcastId, state->all);
+                    });
     };
+
     fetchPage();
 }
 
