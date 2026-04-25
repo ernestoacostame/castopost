@@ -13,6 +13,7 @@
 #include <QMimeDatabase>
 #include <QDateTime>
 #include <QRegularExpression>
+#include <QTimer>
 
 CastopodClient::CastopodClient(QObject *parent)
     : QObject(parent)
@@ -92,24 +93,34 @@ void CastopodClient::fetchRecentEpisodes(int podcastId, int limit)
 
 void CastopodClient::fetchAllEpisodes(int podcastId)
 {
-    constexpr int kMaxEpisodes = 500;   // prevent memory exhaustion
+    constexpr int kMaxEpisodes = 500;
+    constexpr int pageSize = 100;
 
     struct State {
         QList<Episode> all;
-        int offset   = 0;
-        int pageSize = 100;
+        int offset = 0;
     };
     auto state = std::make_shared<State>();
 
-    std::function<void()> fetchPage = [=, &fetchPage]() mutable {
+    // Use shared_ptr to hold the recursive function, but schedule next call via QTimer
+    auto fetchPage = std::make_shared<std::function<void()>>();
+
+    *fetchPage = [this, state, podcastId, fetchPage]() mutable {
+        if (state->all.size() >= kMaxEpisodes) {
+            qWarning() << "fetchAllEpisodes: capped at" << kMaxEpisodes
+                       << "episodes for podcast" << podcastId;
+            emit episodesFetched(podcastId, state->all);
+            return;
+        }
+
         QUrlQuery q;
         q.addQueryItem("podcastIds", QString::number(podcastId));
-        q.addQueryItem("limit",      QString::number(state->pageSize));
+        q.addQueryItem("limit",      QString::number(pageSize));
         q.addQueryItem("offset",     QString::number(state->offset));
         q.addQueryItem("order",      "newest");
 
         handleReply(m_nam->get(buildRequest("/episodes/", q)),
-                    [this, state, podcastId, &fetchPage](const QJsonDocument &doc) mutable {
+                    [this, state, podcastId, fetchPage](const QJsonDocument &doc) mutable {
                         QJsonArray arr = doc.isArray() ? doc.array()
                                                        : doc.object()["data"].toArray();
                         if (arr.isEmpty()) {
@@ -120,8 +131,7 @@ void CastopodClient::fetchAllEpisodes(int podcastId)
                         for (const QJsonValue &v : arr)
                             state->all << Episode::fromJson(v.toObject());
 
-                        int fetchedCount = arr.size();
-                        state->offset += fetchedCount;   // fix: use actual count
+                        state->offset += arr.size();
 
                         // Check cap
                         if (state->all.size() >= kMaxEpisodes) {
@@ -131,15 +141,16 @@ void CastopodClient::fetchAllEpisodes(int podcastId)
                             return;
                         }
 
-                        // Continue if we got a full page
-                        if (fetchedCount == state->pageSize && state->offset < 2000)
-                            fetchPage();
+                        // Schedule next page asynchronously to avoid stack growth
+                        if (arr.size() == pageSize && state->offset < 2000)
+                            QTimer::singleShot(0, *fetchPage);
                         else
                             emit episodesFetched(podcastId, state->all);
                     });
     };
 
-    fetchPage();
+    // Start first page via QTimer to keep stack shallow
+    QTimer::singleShot(0, *fetchPage);
 }
 
 // ──────────────────────────────────────────────────────────────
