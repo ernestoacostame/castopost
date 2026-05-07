@@ -21,13 +21,12 @@ AppController::AppController(QObject *parent)
     // ── API signals ─────────────────────────────────────────
     connect(m_api, &CastopodClient::podcastFetched, this,
             [this](const Podcast &p) {
-        m_podcastInfo = {
-            {"id",          p.id},
-            {"handle",      p.handle},
-            {"title",       p.title},
-            {"description", p.description},
-            {"coverUrl",    p.coverUrl},
-        };
+        m_podcastInfo.clear();
+        m_podcastInfo["id"]          = p.id;
+        m_podcastInfo["handle"]      = p.handle;
+        m_podcastInfo["title"]       = p.title;
+        m_podcastInfo["description"] = p.description;
+        m_podcastInfo["coverUrl"]    = p.coverUrl;
         emit podcastInfoChanged();
     });
 
@@ -416,11 +415,11 @@ QVariantList AppController::getTmpFiles() const
     if (!dir.exists()) return list;
 
     for (const QFileInfo &fi : dir.entryInfoList(QDir::Files, QDir::Time)) {
-        list << QVariantMap{
-            {"name", fi.fileName()},
-            {"size", QString::number(fi.size() / 1024.0 / 1024.0, 'f', 2)},
-            {"age",  QString::number(fi.birthTime().secsTo(QDateTime::currentDateTime()) / 60)},
-        };
+        QVariantMap entry;
+        entry["name"] = fi.fileName();
+        entry["size"] = QString::number(fi.size() / 1024.0 / 1024.0, 'f', 2);
+        entry["age"]  = QString::number(fi.birthTime().secsTo(QDateTime::currentDateTime()) / 60);
+        list << entry;
     }
     return list;
 }

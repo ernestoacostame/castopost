@@ -60,6 +60,7 @@ qt_add_qml_module(castopost
         qml/Main.qml
         qml/pages/DashboardPage.qml
         qml/pages/PublishPage.qml
+        qml/pages/EpisodesPage.qml
         qml/pages/DraftsPage.qml
         qml/pages/TemplatesPage.qml
         qml/pages/PodcastsPage.qml

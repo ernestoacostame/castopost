@@ -57,7 +57,7 @@ Page {
                     width: parent.width - 32
                     height: epRow.implicitHeight + 20
                     radius: 8
-                    color: epHover.containsMouse ? theme.cardHover : theme.cardBg
+                    color: epHover.hovered ? theme.cardHover : theme.cardBg
                     border.color: theme.cardBorder; border.width: 1
 
                     HoverHandler { id: epHover }
