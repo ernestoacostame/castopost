@@ -87,11 +87,11 @@ Page {
             Rectangle {
                 width: parent.width; height: 40; radius: 8
                 color: App.ffmpegAvailable() ? "#1b3a20" : theme.warningBg
-                border.color: App.ffmpegAvailable() ? "#2e7d32" : "#bf360c"
+                border.color: App.ffmpegAvailable() ? theme.successBadge : theme.error
                 Label {
                     anchors { left: parent.left; leftMargin: 14; verticalCenter: parent.verticalCenter }
                     text: App.ffmpegAvailable() ? "✓ FFmpeg disponible" : "✕ FFmpeg no encontrado — sudo apt install ffmpeg"
-                    color: App.ffmpegAvailable() ? "#a5d6a7" : theme.warning; font.pixelSize: 11
+                    color: App.ffmpegAvailable() ? theme.success : theme.warning; font.pixelSize: 11
                 }
             }
 
@@ -175,7 +175,7 @@ Page {
                 text: App.configured ? "Guardar ajustes" : "Guardar y comenzar"
                 font.pixelSize: 14; font.bold: true
                 enabled: urlField.text.trim().length > 0 && userField.text.trim().length > 0
-                Material.background: "#6200ee"; Material.foreground: "white"
+                Material.background: theme.accent; Material.foreground: "white"
                 onClicked: App.saveSettings(
                     urlField.text.trim(), userField.text.trim(), passField.text,
                     handleField.text.trim(), parseInt(userIdField.text) || 1)

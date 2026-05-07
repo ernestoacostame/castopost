@@ -5,7 +5,7 @@ import QtQuick.Layouts
 
 Rectangle {
     id: root
-    color: theme.bgSidebar  // siempre oscuro
+    color: theme.bgSidebar
 
     signal navigate(string page)
     property string currentPage: "dashboard"
@@ -14,29 +14,29 @@ Rectangle {
         anchors { fill: parent; margins: 0 }
         spacing: 0
 
-        // ── Logo ──────────────────────────────────────────
-        Rectangle {
+        // ── Logo ────────────────────────────────────────
+        Item {
             Layout.fillWidth: true
-            height: 56
-            color: Qt.darker(theme.bgSidebar, 1.2)
+            height: 52
 
             Text {
                 text: "CastoPOST"
                 color: theme.textOnDark
-                font.pixelSize: 16; font.bold: true
-                anchors { left: parent.left; leftMargin: 16; verticalCenter: parent.verticalCenter }
+                font.pixelSize: 15; font.weight: Font.DemiBold
+                font.letterSpacing: 0.5
+                anchors { left: parent.left; leftMargin: 20; verticalCenter: parent.verticalCenter }
             }
         }
 
-        // ── Selector de podcast ───────────────────────────
+        // ── Selector de podcast ─────────────────────────
         PodcastSwitcher {
             Layout.fillWidth: true
-            Layout.topMargin: 8
+            Layout.leftMargin: 10; Layout.rightMargin: 10
         }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#33334a"; Layout.topMargin: 8 }
+        Item { height: 12 }
 
-        // ── Navegación ────────────────────────────────────
+        // ── Navegación ──────────────────────────────────
         NavItem { icon: "⬡"; label: "Dashboard";  page: "dashboard"  }
         NavItem { icon: "＋"; label: "Publicar";   page: "publish"    }
         NavItem { icon: "◉"; label: "Episodios";  page: "episodes"   }
@@ -46,7 +46,11 @@ Rectangle {
 
         Item { Layout.fillHeight: true }
 
-        Rectangle { Layout.fillWidth: true; height: 1; color: "#33334a" }
+        Rectangle {
+            Layout.fillWidth: true; height: 1
+            Layout.leftMargin: 16; Layout.rightMargin: 16
+            color: "#1e2028"
+        }
         NavItem { icon: "⚙"; label: "Ajustes"; page: "settings" }
         Item { height: 8 }
     }
@@ -56,20 +60,47 @@ Rectangle {
         property string label: ""
         property string page:  ""
 
+        readonly property bool active: root.currentPage === page
+
         Layout.fillWidth: true
-        height: 44
-        color: root.currentPage === page ? "#2d2d5e" : "transparent"
-        radius: 6
+        Layout.leftMargin: 8; Layout.rightMargin: 8
+        height: 38
+        radius: theme.radiusSm
+        color: active ? "#1a2030" : (navMouse.containsMouse ? "#14161e" : "transparent")
+
+        Behavior on color { ColorAnimation { duration: 100 } }
 
         Row {
-            anchors { left: parent.left; leftMargin: 16; verticalCenter: parent.verticalCenter }
-            spacing: 12
-            Text { text: icon;  color: root.currentPage === page ? "#bb86fc" : theme.textMutedOnDark; font.pixelSize: 16 }
-            Text { text: label; color: root.currentPage === page ? "#ffffff"  : theme.textMutedOnDark; font.pixelSize: 13 }
+            anchors { left: parent.left; leftMargin: 14; verticalCenter: parent.verticalCenter }
+            spacing: 10
+
+            Text {
+                text: icon
+                color: active ? theme.accent : theme.textMutedOnDark
+                font.pixelSize: 14
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Text {
+                text: label
+                color: active ? theme.textOnDark : theme.textMutedOnDark
+                font.pixelSize: 12.5
+                font.weight: active ? Font.Medium : Font.Normal
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+
+        // Indicador lateral activo
+        Rectangle {
+            visible: active
+            width: 3; height: 18; radius: 2
+            color: theme.accent
+            anchors { left: parent.left; leftMargin: 2; verticalCenter: parent.verticalCenter }
         }
 
         MouseArea {
+            id: navMouse
             anchors.fill: parent
+            hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: { root.currentPage = page; root.navigate(page) }
         }

@@ -12,7 +12,7 @@ Rectangle {
 
     height:  message.length > 0 ? 44 : 0
     visible: message.length > 0
-    color:   isError ? theme.errorBg : "#1b5e20"
+    color:   isError ? theme.errorBg : theme.successBadge
     clip:    true
 
     Behavior on height { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }

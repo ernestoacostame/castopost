@@ -20,7 +20,7 @@ Page {
             }
             Label {
                 text: App.episodes.length + " publicados"
-                color: "#9090c0"; font.pixelSize: 12
+                color: theme.textMutedOnDark; font.pixelSize: 12
             }
             ToolButton {
                 text: "↻"; font.pixelSize: 18
@@ -73,12 +73,12 @@ Page {
                         // Número
                         Rectangle {
                             width: 36; height: 36; radius: 4
-                            color: "#1a3a5c"
+                            color: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.12)
                             Label {
                                 anchors.centerIn: parent
                                 text: modelData.episodeNumber > 0
                                       ? "#" + modelData.episodeNumber : "–"
-                                color: "#64b5f6"
+                                color: theme.accent
                                 font.pixelSize: 11; font.bold: true
                             }
                         }
@@ -121,14 +121,14 @@ Page {
 
                         // Badge publicado
                         Rectangle {
-                            radius: 10; width: 72; height: 20
-                            color: theme.successBadge
+                            radius: 4; width: 72; height: 20
+                            color: Qt.rgba(theme.success.r, theme.success.g, theme.success.b, 0.15)
                             Label {
                                 anchors.centerIn: parent
                                 text: "PUBLICADO"
-                                color: "#ffffff"
-                                font.pixelSize: 9; font.bold: true
-                                font.letterSpacing: 0.8
+                                color: theme.success
+                                font.pixelSize: 9; font.weight: Font.DemiBold
+                                font.letterSpacing: 0.6
                             }
                         }
                     }

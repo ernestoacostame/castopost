@@ -23,8 +23,8 @@ Column {
         valueRole: "handle"
 
         // El sidebar es siempre oscuro — texto siempre claro
-        Material.foreground: "#e0e0ff"
-        Material.background: "#2d2d5e"
+        Material.foreground: theme.textOnDark
+        Material.background: theme.bgSurface2
         font.pixelSize: 12
 
         onActivated: App.setActivePodcast(currentValue)

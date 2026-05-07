@@ -39,7 +39,7 @@ Dialog {
                     width: ListView.view.width
                     height: itemCol.implicitHeight + 16
                     radius: 6
-                    color: hov ? "#2d2d5e" : theme.bgSurface
+                    color: hov ? theme.bgSurface2 : theme.bgSurface
                     property bool hov: false
 
                     ColumnLayout {

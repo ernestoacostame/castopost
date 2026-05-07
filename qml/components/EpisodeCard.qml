@@ -8,14 +8,14 @@ Rectangle {
     property var episode: ({})
     signal publishDraftRequested(int episodeId)
 
-    height: contentCol.implicitHeight + 24
-    radius: 8
+    height: contentCol.implicitHeight + 20
+    radius: theme.radiusMd
     color: hovered ? theme.cardHover : theme.cardBg
-    border.color: episode.isDraft ? theme.accent + "44" : theme.cardBorder
+    border.color: theme.cardBorder
     border.width: 1
 
     property bool hovered: false
-    Behavior on color { ColorAnimation { duration: 120 } }
+    Behavior on color { ColorAnimation { duration: 80 } }
 
     MouseArea {
         anchors.fill: parent
@@ -26,31 +26,33 @@ Rectangle {
 
     ColumnLayout {
         id: contentCol
-        anchors { left: parent.left; right: parent.right; top: parent.top; margins: 14 }
+        anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
         spacing: 6
 
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
 
+            // Número de episodio - pastilla minimalista
             Rectangle {
-                width: 36; height: 36; radius: 4
-                color: episode.isDraft ? "#3d2b6b" : "#1a3a5c"
+                width: 34; height: 26; radius: 5
+                color: episode.isDraft ? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.12)
+                                       : Qt.rgba(theme.success.r, theme.success.g, theme.success.b, 0.12)
                 Label {
                     anchors.centerIn: parent
                     text: episode.episodeNumber > 0 ? "#" + episode.episodeNumber : "–"
-                    color: episode.isDraft ? "#bb86fc" : "#64b5f6"
-                    font.pixelSize: 11; font.bold: true
+                    color: episode.isDraft ? theme.accent : theme.success
+                    font.pixelSize: 11; font.weight: Font.DemiBold
                 }
             }
 
             Column {
                 Layout.fillWidth: true
-                spacing: 2
+                spacing: 1
                 Label {
                     text: episode.title || "(sin título)"
                     color: theme.textPrimary
-                    font.pixelSize: 13; font.bold: true
+                    font.pixelSize: 13; font.weight: Font.DemiBold
                     elide: Text.ElideRight
                     width: parent.width
                 }
@@ -58,34 +60,26 @@ Rectangle {
                     visible: episode.seasonNumber > 0
                     text: "Temporada " + episode.seasonNumber
                     color: theme.textMuted
-                    font.pixelSize: 11
+                    font.pixelSize: 10
                 }
             }
 
+            // Badge estado
             Rectangle {
-                radius: 10
-                width: badgeLabel.implicitWidth + 16
+                radius: 4
+                width: badgeLabel.implicitWidth + 12
                 height: 20
-                color: episode.isDraft ? "#4a2080" : theme.successBadge
+                color: episode.isDraft
+                       ? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.15)
+                       : Qt.rgba(theme.success.r, theme.success.g, theme.success.b, 0.15)
                 Label {
                     id: badgeLabel
                     anchors.centerIn: parent
                     text:  episode.isDraft ? "BORRADOR" : "PUBLICADO"
-                    color: "#ffffff"
-                    font.pixelSize: 9; font.bold: true; font.letterSpacing: 0.8
+                    color: episode.isDraft ? theme.accent : theme.success
+                    font.pixelSize: 9; font.weight: Font.DemiBold; font.letterSpacing: 0.6
                 }
             }
-        }
-
-        Label {
-            visible: (episode.description || "").length > 0
-            text: episode.description || ""
-            color: theme.textSecondary
-            font.pixelSize: 11
-            maximumLineCount: 2
-            elide: Text.ElideRight
-            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-            Layout.fillWidth: true
         }
 
         RowLayout {
@@ -109,7 +103,7 @@ Rectangle {
                 visible: episode.isDraft && episode.id > 0
                 text: "Publicar"
                 flat: true; font.pixelSize: 11
-                Material.foreground: theme.accentLight
+                Material.foreground: theme.accent
                 onClicked: root.publishDraftRequested(episode.id)
             }
         }

@@ -65,7 +65,7 @@ Page {
                             height: draftCol.implicitHeight + 20
                             radius: 8
                             color: theme.bgSurface
-                            border.color: "#3d2b6b"; border.width: 1
+                            border.color: theme.cardBorder; border.width: 1
 
                             ColumnLayout {
                                 id: draftCol

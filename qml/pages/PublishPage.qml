@@ -109,7 +109,7 @@ Page {
                 visible: root.hasSavedAudio && (root.audioFilePath !== "" || audioTabs.currentIndex === 2)
                 radius: 8
                 color: theme.successBg
-                border.color: "#2e7d32"; border.width: 1
+                border.color: theme.successBadge; border.width: 1
 
                 Row {
                     anchors { left: parent.left; right: parent.right; leftMargin: 12; rightMargin: 8; verticalCenter: parent.verticalCenter }
@@ -122,7 +122,7 @@ Page {
                     }
                     Label {
                         text: root.savedAudioName
-                        color: "#a5d6a7"; font.pixelSize: 11
+                        color: theme.success; font.pixelSize: 11
                         elide: Text.ElideLeft
                         width: parent.width - replaceBtn.implicitWidth - 40
                         anchors.verticalCenter: parent.verticalCenter
@@ -242,7 +242,7 @@ Page {
                         id: examBtn
                         text: "Examinar…"
                         onClicked: audioFileDialog.open()
-                        Material.background: "#2d2d5e"
+                        Material.background: theme.bgSurface2
                     }
                 }
             }
@@ -398,7 +398,7 @@ Page {
             Rectangle { width: parent.width; height: 1; color: theme.border }
 
             // ── Portada ───────────────────────────────────────
-            Label { text: "PORTADA (opcional)"; color: "#7070b0"; font.pixelSize: 10; font.letterSpacing: 1 }
+            Label { text: "PORTADA (opcional)"; color: theme.textMuted; font.pixelSize: 10; font.letterSpacing: 1 }
 
             Row {
                 width: parent.width
@@ -413,7 +413,7 @@ Page {
                     id: coverBtn
                     text: "Examinar…"
                     onClicked: coverFileDialog.open()
-                    Material.background: "#2d2d5e"
+                    Material.background: theme.bgSurface2
                 }
                 Rectangle {
                     id: coverPreview
@@ -483,8 +483,8 @@ Page {
                                     width: 48
                                     height: 32
                                     radius: 4
-                                    color: App.lufsTarget === -14 ? "#6200ee" : theme.bgSurface
-                                    border.color: App.lufsTarget === -14 ? "#6200ee" : theme.border
+                                    color: App.lufsTarget === -14 ? theme.accent : theme.bgSurface
+                                    border.color: App.lufsTarget === -14 ? theme.accent : theme.border
                                     border.width: 1
                                     
                                     Text {
@@ -507,8 +507,8 @@ Page {
                                     width: 48
                                     height: 32
                                     radius: 4
-                                    color: App.lufsTarget === -16 ? "#6200ee" : theme.bgSurface
-                                    border.color: App.lufsTarget === -16 ? "#6200ee" : theme.border
+                                    color: App.lufsTarget === -16 ? theme.accent : theme.bgSurface
+                                    border.color: App.lufsTarget === -16 ? theme.accent : theme.border
                                     border.width: 1
                                     
                                     Text {
@@ -531,8 +531,8 @@ Page {
                                     width: 48
                                     height: 32
                                     radius: 4
-                                    color: App.lufsTarget === -18 ? "#6200ee" : theme.bgSurface
-                                    border.color: App.lufsTarget === -18 ? "#6200ee" : theme.border
+                                    color: App.lufsTarget === -18 ? theme.accent : theme.bgSurface
+                                    border.color: App.lufsTarget === -18 ? theme.accent : theme.border
                                     border.width: 1
                                     
                                     Text {
@@ -555,8 +555,8 @@ Page {
                                     width: 48
                                     height: 32
                                     radius: 4
-                                    color: App.lufsTarget === -24 ? "#6200ee" : theme.bgSurface
-                                    border.color: App.lufsTarget === -24 ? "#6200ee" : theme.border
+                                    color: App.lufsTarget === -24 ? theme.accent : theme.bgSurface
+                                    border.color: App.lufsTarget === -24 ? theme.accent : theme.border
                                     border.width: 1
                                     
                                     Text {
@@ -707,7 +707,7 @@ Page {
                 font.pixelSize: 14; font.bold: true
                 height: 48
                 enabled: !App.busy && titleField.text.trim().length > 0
-                Material.background: enabled ? "#6200ee" : "#333355"
+                Material.background: enabled ? theme.accent : theme.bgSurface2
                 Material.foreground: "white"
                 onClicked: publish()
             }

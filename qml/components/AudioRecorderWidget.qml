@@ -58,7 +58,7 @@ Column {
         height: 48
         radius: 24
         visible: root.recordedFilePath === ""
-        color: App.recorder.recording ? theme.errorBg : "#4a148c"
+        color: App.recorder.recording ? theme.errorBg : theme.accent
         Behavior on color { ColorAnimation { duration: 200 } }
 
         // Grabar (cuando no hay grabación en curso)
@@ -102,7 +102,7 @@ Column {
                 width: pauseResumeLabel.implicitWidth + 24
                 height: 36
                 radius: 18
-                color: "#1a3a5c"
+                color: theme.accentSoft
                 Label {
                     id: pauseResumeLabel
                     anchors.centerIn: parent
@@ -207,7 +207,7 @@ Column {
             Rectangle {
                 width: parent.width - discardBtn2.width - volRow.width - 16
                 height: 48; radius: 24
-                color: player.playbackState === MediaPlayer.PlayingState ? "#1a3a5c" : "#4a148c"
+                color: player.playbackState === MediaPlayer.PlayingState ? theme.accentSoft : theme.accent
                 Behavior on color { ColorAnimation { duration: 150 } }
 
                 Row {
@@ -274,11 +274,11 @@ Column {
         Rectangle {
             width: parent.width
             height: 36; radius: 6
-            color: theme.successBg; border.color: "#2e7d32"
+            color: theme.successBg; border.color: theme.successBadge
             Label {
                 anchors.centerIn: parent
                 text: "✓  Grabación lista — puedes publicar o descartar"
-                color: "#a5d6a7"; font.pixelSize: 11
+                color: theme.success; font.pixelSize: 11
             }
         }
     }

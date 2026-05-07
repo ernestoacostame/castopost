@@ -24,7 +24,7 @@ Page {
             Layout.fillWidth: true
             height: addCol.implicitHeight + 24
             radius: 8; color: theme.bgSurface
-            border.color: "#3d2b6b"; border.width: 1
+            border.color: theme.cardBorder; border.width: 1
 
             ColumnLayout {
                 id: addCol
@@ -51,7 +51,7 @@ Page {
                     Button {
                         text: "Añadir"
                         enabled: podName.text.trim().length > 0 && podHandle.text.trim().length > 0 && !App.busy
-                        Material.background: "#4a148c"; Material.foreground: "white"
+                        Material.background: theme.accent; Material.foreground: "white"
                         onClicked: {
                             App.addPodcast(podName.text.trim(), podHandle.text.trim())
                             podName.text = ""; podHandle.text = ""
@@ -104,7 +104,7 @@ Page {
                     Label {
                         text: modelData.handle
                         color: modelData.handle === App.activePodcast
-                               ? (theme.dark ? "#9090c0" : "#6040a0")
+                               ? (theme.dark ? theme.textMutedOnDark : theme.accent)
                                : theme.textMuted
                         font.pixelSize: 11
                     }

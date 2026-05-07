@@ -32,26 +32,29 @@ Page {
     header: ToolBar {
         Material.background: theme.bgHeader
         RowLayout {
-            anchors { fill: parent; leftMargin: 16; rightMargin: 8 }
+            anchors { fill: parent; leftMargin: 20; rightMargin: 12 }
             Label {
-                text: "Dashboard · " + App.activePodcast
-                font.pixelSize: 15; font.bold: true; color: "white"
+                text: "Dashboard"
+                font.pixelSize: 16; font.weight: Font.DemiBold; color: theme.textOnDark
                 Layout.fillWidth: true
             }
             Row {
-                spacing: 8
+                spacing: 6
                 Button {
-                    text: "Publicar nuevo episodio"
-                    Material.background: "#6200ee"; Material.foreground: "white"
+                    text: "＋ Nuevo episodio"
+                    Material.background: theme.accent; Material.foreground: "white"
+                    font.pixelSize: 12
                     onClicked: root.openPublish()
                 }
                 Button {
-                    text: "Borradores locales"
-                    flat: true; Material.foreground: "#bb86fc"
+                    text: "Borradores"
+                    flat: true; Material.foreground: theme.textMutedOnDark
+                    font.pixelSize: 12
                     onClicked: root.openDrafts()
                 }
                 ToolButton {
-                    text: "↻"; font.pixelSize: 18
+                    text: "↻"; font.pixelSize: 16
+                    Material.foreground: theme.textMutedOnDark
                     onClicked: App.refreshEpisodes()
                     ToolTip.text: "Actualizar"; ToolTip.visible: hovered
                 }
@@ -75,10 +78,12 @@ Page {
                 width: parent.width - 40
                 anchors.horizontalCenter: parent.horizontalCenter
                 implicitHeight: podInfoRow.implicitHeight + 24
-                radius: 8
+                radius: theme.radiusMd
                 color: theme.bgSurface
                 border.color: theme.cardBorder; border.width: 1
-                visible: App.podcastInfo && App.podcastInfo.title
+                visible: App.podcastInfo !== null
+                         && App.podcastInfo !== undefined
+                         && (App.podcastInfo.title || "") !== ""
 
                 Row {
                     id: podInfoRow
@@ -128,9 +133,9 @@ Page {
                 leftPadding: 20; rightPadding: 20; topPadding: 16; bottomPadding: 12
                 spacing: 12
 
-                StatCard { label: "Publicados"; value: App.episodes.length; cardColor: "#1b5e20" }
-                StatCard { label: "Borradores"; value: App.drafts.length + App.getDrafts().length; cardColor: "#4a148c" }
-                StatCard { label: "Próximo n.°"; value: App.nextEpisodeNumber; cardColor: "#1a3a5c" }
+                StatCard { label: "Publicados"; value: App.episodes.length; cardColor: theme.success }
+                StatCard { label: "Borradores"; value: App.drafts.length + App.getDrafts().length; cardColor: theme.accent }
+                StatCard { label: "Próximo n.°"; value: App.nextEpisodeNumber; cardColor: theme.warning }
             }
 
             // ── Borradores locales ────────────────────────────
@@ -161,7 +166,7 @@ Page {
                             anchors.horizontalCenter: parent.horizontalCenter
                             height: localRow.implicitHeight + 20
                             radius: 8; color: theme.bgSurface
-                            border.color: "#4a2080"; border.width: 1
+                            border.color: Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.25); border.width: 1
 
                             Column {
                                 id: localRow
@@ -325,18 +330,27 @@ Page {
     component StatCard: Rectangle {
         property string label:     ""
         property int    value:     0
-        property color  cardColor: theme.bgHeader
+        property color  cardColor: theme.accent
 
         width: (parent.width - parent.leftPadding - parent.rightPadding - parent.spacing * 2) / 3
-        height: 72; radius: 8
-        Rectangle { anchors.fill: parent; radius: parent.radius; color: parent.cardColor; opacity: 0.25 }
-        border.color: Qt.lighter(cardColor, 1.5); border.width: 1
+        height: 68; radius: theme.radiusMd
+        color: Qt.rgba(cardColor.r, cardColor.g, cardColor.b, 0.08)
+        border.color: Qt.rgba(cardColor.r, cardColor.g, cardColor.b, 0.2); border.width: 1
 
         Column {
             anchors.centerIn: parent
-            spacing: 4
-            Label { text: value.toString(); font.pixelSize: 28; font.bold: true; color: "white"; anchors.horizontalCenter: parent.horizontalCenter }
-            Label { text: label; font.pixelSize: 11; color: "#ffffff"; opacity: 0.9; anchors.horizontalCenter: parent.horizontalCenter }
+            spacing: 2
+            Label {
+                text: value.toString()
+                font.pixelSize: 26; font.weight: Font.DemiBold
+                color: cardColor
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+            Label {
+                text: label
+                font.pixelSize: 10; color: theme.textMuted
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
         }
     }
 }

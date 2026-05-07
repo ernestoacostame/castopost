@@ -42,8 +42,8 @@ Page {
                     width: ListView.view.width - 24
                     height: 60; radius: 8
                     color: root.editingTemplate && root.editingTemplate.id === modelData.id
-                           ? "#2d2d5e" : theme.bgSurface
-                    border.color: "#3d2b6b"; border.width: 1
+                           ? theme.bgSurface2 : theme.bgSurface
+                    border.color: theme.cardBorder; border.width: 1
 
                     Column {
                         anchors { left: parent.left; right: parent.right; top: parent.top; margins: 10 }
@@ -107,7 +107,7 @@ Page {
                     spacing: 8
                     Button {
                         text: "Guardar cambios"
-                        Material.background: "#4a148c"; Material.foreground: "white"
+                        Material.background: theme.accent; Material.foreground: "white"
                         onClicked: {
                             if (root.editingTemplate.id)
                                 App.updateTemplate(root.editingTemplate.id, tplName.text, tplBody.text)

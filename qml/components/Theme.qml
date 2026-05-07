@@ -15,44 +15,49 @@ Item {
 
     readonly property bool dark: mode === 0
 
-    // ── Fondos ────────────────────────────────────────────
-    readonly property color bgBase:        dark ? "#13132a" : "#eef0f8"
-    readonly property color bgSurface:     dark ? "#1e1e3a" : "#ffffff"
-    readonly property color bgSurface2:    dark ? "#25254a" : "#e2e5f5"
-    readonly property color bgSidebar:     dark ? "#1a1a2e" : "#2a1f6e"  // sidebar siempre oscuro
-    readonly property color bgHeader:      dark ? "#1a1a35" : "#2a1f6e"  // header igual
-    readonly property color bgInput:       dark ? "#12122a" : "#f5f6ff"
+    // ── Fondos ──────────────────────────────────────────
+    readonly property color bgBase:        dark ? "#0f1117" : "#f4f5f7"
+    readonly property color bgSurface:     dark ? "#16181f" : "#ffffff"
+    readonly property color bgSurface2:    dark ? "#1c1e27" : "#ecedf1"
+    readonly property color bgSidebar:     dark ? "#0c0d12" : "#111318"
+    readonly property color bgHeader:      dark ? "#12141a" : "#111318"
+    readonly property color bgInput:       dark ? "#1a1c24" : "#f0f1f5"
 
-    // ── Bordes ────────────────────────────────────────────
-    readonly property color border:        dark ? "#33334a" : "#c8cce8"
-    readonly property color borderAccent:  "#7c4dff"
+    // ── Bordes ──────────────────────────────────────────
+    readonly property color border:        dark ? "#262830" : "#d8dae0"
+    readonly property color borderAccent:  dark ? "#3d9be9" : "#2b7fd4"
 
-    // ── Texto ─────────────────────────────────────────────
-    readonly property color textPrimary:   dark ? "#e0e0ff" : "#12103a"
-    readonly property color textSecondary: dark ? "#9090b0" : "#3a3860"
-    readonly property color textMuted:     dark ? "#666688" : "#6860a0"
-    // Texto sobre sidebar/header oscuro (siempre blanco)
-    readonly property color textOnDark:    "#e0e0ff"
-    readonly property color textMutedOnDark: "#9090c0"
+    // ── Texto ───────────────────────────────────────────
+    readonly property color textPrimary:   dark ? "#e8eaed" : "#1a1c22"
+    readonly property color textSecondary: dark ? "#9ba1ad" : "#52566a"
+    readonly property color textMuted:     dark ? "#5c6170" : "#888da0"
+    readonly property color textOnDark:    "#e8eaed"
+    readonly property color textMutedOnDark: "#6b7080"
 
-    // ── Acento ────────────────────────────────────────────
-    readonly property color accent:        "#7c4dff"
-    readonly property color accentLight:   dark ? "#bb86fc" : "#6200ee"
+    // ── Acento ──────────────────────────────────────────
+    readonly property color accent:        dark ? "#3d9be9" : "#2b7fd4"
+    readonly property color accentLight:   dark ? "#5bb4f5" : "#1a6dc0"
+    readonly property color accentSoft:    dark ? "#1a2e42" : "#e0f0ff"
 
-    // ── Estados ───────────────────────────────────────────
-    readonly property color success:       dark ? "#69f0ae" : "#1b7a3e"
-    readonly property color successBg:     dark ? "#0d2a1a" : "#c8f5dc"
-    readonly property color successBadge:  dark ? "#1b5e20" : "#2e7d32"
-    readonly property color error:         "#ef5350"
-    readonly property color errorBg:       dark ? "#b00020" : "#c62828"
-    readonly property color warning:       dark ? "#ffab40" : "#e65100"
-    readonly property color warningBg:     dark ? "#3d1a00" : "#fff3e0"
+    // ── Estados ─────────────────────────────────────────
+    readonly property color success:       dark ? "#34d399" : "#0f8a5f"
+    readonly property color successBg:     dark ? "#0d2318" : "#dcf5ea"
+    readonly property color successBadge:  dark ? "#166534" : "#15803d"
+    readonly property color error:         "#f06050"
+    readonly property color errorBg:       dark ? "#3b1418" : "#fde8e8"
+    readonly property color warning:       dark ? "#f5a524" : "#c77c00"
+    readonly property color warningBg:     dark ? "#2d1f08" : "#fef3d6"
 
-    // ── Tarjetas ──────────────────────────────────────────
-    readonly property color cardBg:        dark ? "#1e1e3a" : "#ffffff"
-    readonly property color cardBorder:    dark ? "#2a2a4a" : "#d0d4ee"
-    readonly property color cardHover:     dark ? "#2a2a4a" : "#f0f2ff"
+    // ── Tarjetas ────────────────────────────────────────
+    readonly property color cardBg:        dark ? "#16181f" : "#ffffff"
+    readonly property color cardBorder:    dark ? "#22252e" : "#e0e2e8"
+    readonly property color cardHover:     dark ? "#1e2029" : "#f6f7fa"
 
-    // ── Overlay ───────────────────────────────────────────
-    readonly property color overlay:       "#80000000"
+    // ── Overlay ─────────────────────────────────────────
+    readonly property color overlay:       dark ? "#cc0a0b10" : "#80000000"
+
+    // ── Utilidades ──────────────────────────────────────
+    readonly property int   radiusSm:      6
+    readonly property int   radiusMd:      10
+    readonly property int   radiusLg:      14
 }
