@@ -166,7 +166,7 @@ void AudioRecorder::pause()
     if (!m_recording || m_paused) return;
 
     if (m_source) {
-        m_source->stop();
+        m_source->suspend();
     }
     m_ticker.stop();
     m_paused = true;
@@ -178,16 +178,7 @@ void AudioRecorder::resume()
     if (!m_recording || !m_paused) return;
 
     if (m_source) {
-        // Disconnect any previous connection to avoid duplicates
-        if (m_device) {
-            disconnect(m_device, &QIODevice::readyRead, this, &AudioRecorder::onAudioData);
-        }
-        m_device = m_source->start();
-        if (!m_device) {
-            emit errorOccurred("No se pudo reanudar la grabación.");
-            return;
-        }
-        connect(m_device, &QIODevice::readyRead, this, &AudioRecorder::onAudioData);
+        m_source->resume();
     }
     m_ticker.start();
     m_paused = false;

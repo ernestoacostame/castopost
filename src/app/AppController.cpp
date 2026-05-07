@@ -3,7 +3,9 @@
 
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QDateTime>
+#include <QStandardPaths>
 
 AppController::AppController(QObject *parent)
     : QObject(parent)
@@ -17,6 +19,18 @@ AppController::AppController(QObject *parent)
     , m_lufsTarget(m_settings.value("lufsTarget", -16).toInt())
 {
     // ── API signals ─────────────────────────────────────────
+    connect(m_api, &CastopodClient::podcastFetched, this,
+            [this](const Podcast &p) {
+        m_podcastInfo = {
+            {"id",          p.id},
+            {"handle",      p.handle},
+            {"title",       p.title},
+            {"description", p.description},
+            {"coverUrl",    p.coverUrl},
+        };
+        emit podcastInfoChanged();
+    });
+
     connect(m_api, &CastopodClient::episodesFetched, this,
             [this](int /*podcastId*/, const QList<Episode> &episodes) {
         m_episodes.clear();
@@ -198,8 +212,10 @@ void AppController::refreshEpisodes()
 
     connect(m_api, &CastopodClient::podcastIdResolved, this,
             [this](const QString &handle, int podcastId) {
-        if (handle == m_activePodcast)
+        if (handle == m_activePodcast) {
             m_api->fetchAllEpisodes(podcastId);
+            m_api->fetchPodcastById(podcastId);
+        }
     }, Qt::SingleShotConnection);
 
     m_api->resolvePodcastHandle(m_activePodcast);
@@ -385,4 +401,51 @@ void AppController::setStatus(const QString &msg, bool isError)
     m_statusMsg     = msg;
     m_statusIsError = isError;
     emit statusMessageChanged();
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Tmp file management
+// ──────────────────────────────────────────────────────────────
+
+QVariantList AppController::getTmpFiles() const
+{
+    QVariantList list;
+    QString tmpDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+                     + "/castopost";
+    QDir dir(tmpDir);
+    if (!dir.exists()) return list;
+
+    for (const QFileInfo &fi : dir.entryInfoList(QDir::Files, QDir::Time)) {
+        list << QVariantMap{
+            {"name", fi.fileName()},
+            {"size", QString::number(fi.size() / 1024.0 / 1024.0, 'f', 2)},
+            {"age",  QString::number(fi.birthTime().secsTo(QDateTime::currentDateTime()) / 60)},
+        };
+    }
+    return list;
+}
+
+void AppController::deleteTmpFile(const QString &fileName)
+{
+    QString tmpDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+                     + "/castopost";
+    QString path = tmpDir + "/" + QFileInfo(fileName).fileName(); // sanitize
+    if (QFile::exists(path)) {
+        QFile::remove(path);
+        setStatus("Archivo temporal eliminado.");
+    }
+}
+
+void AppController::clearAllTmpFiles()
+{
+    QString tmpDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+                     + "/castopost";
+    QDir dir(tmpDir);
+    if (!dir.exists()) return;
+    int count = 0;
+    for (const QFileInfo &fi : dir.entryInfoList(QDir::Files)) {
+        QFile::remove(fi.absoluteFilePath());
+        ++count;
+    }
+    setStatus(QString("%1 archivos temporales eliminados.").arg(count));
 }

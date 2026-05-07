@@ -218,7 +218,7 @@ Page {
                         anchors.fill: parent
                         keys: ["text/uri-list"]
                         onDropped: (drop) => {
-                            root.audioFilePath = drop.urls[0].toString().replace("file://","")
+                            root.audioFilePath = drop.urls[0].toLocalFile()
                         }
                     }
                     MouseArea {
@@ -581,7 +581,7 @@ Page {
                                     height: 32
                                     placeholderText: "otro valor"
                                     inputMethodHints: Qt.ImhDigitsOnly | Qt.ImhSignedNumbers
-                                    validator: IntValidator { bottom: -24; top: -14 }
+                                    validator: IntValidator { bottom: -70; top: 0 }
                                     
                                     // Mostrar el valor personalizado actual
                                     Component.onCompleted: {
@@ -594,7 +594,7 @@ Page {
                                     onEditingFinished: {
                                         if (text !== "") {
                                             let value = parseInt(text)
-                                            if (!isNaN(value) && value >= -24 && value <= -14) {
+                                            if (!isNaN(value) && value >= -70 && value <= 0) {
                                                 App.setLufsTarget(value)
                                             } else {
                                                 // Si el valor no es válido, restaurar el actual
@@ -640,6 +640,66 @@ Page {
                 }
             }
 
+            // ── Vista previa en vivo ──────────────────────────
+            Label {
+                text: "VISTA PREVIA"
+                color: theme.accentLight
+                font.pixelSize: 10; font.bold: true; font.letterSpacing: 1.5
+            }
+            Rectangle {
+                width: parent.width
+                implicitHeight: previewCol.implicitHeight + 24
+                radius: 8
+                color: theme.bgInput
+                border.color: theme.border; border.width: 1
+
+                Column {
+                    id: previewCol
+                    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
+                    spacing: 6
+
+                    Label {
+                        text: titleField.text.trim() || "—"
+                        color: theme.textPrimary
+                        font.pixelSize: 15; font.bold: true
+                        width: parent.width
+                        elide: Text.ElideRight
+                    }
+                    Label {
+                        text: {
+                            let parts = []
+                            let ep = parseInt(epNumField.text)
+                            let s  = parseInt(seasonField.text)
+                            if (!isNaN(ep) && ep > 0) parts.push("Ep. " + ep)
+                            if (!isNaN(s)  && s > 0)  parts.push("T" + s)
+                            let t = typeCombo.currentText
+                            if (t && t !== "full") parts.push(t)
+                            return parts.length > 0 ? parts.join(" · ") : "—"
+                        }
+                        color: theme.textMuted; font.pixelSize: 11
+                    }
+                    Rectangle { width: parent.width; height: 1; color: theme.border }
+                    Label {
+                        text: descField.text || ""
+                        color: theme.textSecondary
+                        font.pixelSize: 12
+                        width: parent.width
+                        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                        maximumLineCount: 6
+                        elide: Text.ElideRight
+                        visible: descField.text.trim().length > 0
+                    }
+                    Label {
+                        text: "(sin descripción)"
+                        color: theme.textMuted; font.pixelSize: 11
+                        font.italic: true
+                        visible: descField.text.trim().length === 0
+                    }
+                }
+            }
+
+            Rectangle { width: parent.width; height: 1; color: theme.border }
+
             // ── Publicar ──────────────────────────────────────
             Button {
                 width: parent.width
@@ -658,13 +718,13 @@ Page {
         id: audioFileDialog
         title: "Seleccionar archivo de audio"
         nameFilters: ["Audio (*.mp3 *.wav *.ogg *.flac *.m4a *.opus *.webm *.aac)", "Todos (*)"]
-        onAccepted: root.audioFilePath = file.toString().replace("file://", "")
+        onAccepted: root.audioFilePath = file.toLocalFile()
     }
     Platform.FileDialog {
         id: coverFileDialog
         title: "Seleccionar portada"
         nameFilters: ["Imágenes (*.jpg *.jpeg *.png *.webp)", "Todos (*)"]
-        onAccepted: root.coverFilePath = file.toString().replace("file://", "")
+        onAccepted: root.coverFilePath = file.toLocalFile()
     }
     TemplatePickerDialog {
         id: templateDialog

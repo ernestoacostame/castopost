@@ -210,9 +210,9 @@ void AudioProcessor::onProcessError(QProcess::ProcessError err)
 
 void AudioProcessor::setLufsTarget(int target)
 {
-    // Valid range for broadcast LUFS (typically -24 to -14)
-    if (target < -24 || target > -14) {
-        qWarning() << "LUFS target out of range, using -16";
+    // Rango válido: -70 a 0 LUFS (igual que el proyecto web)
+    if (target < -70 || target > 0) {
+        qWarning() << "LUFS target out of range (-70 to 0), using -16";
         m_lufsTarget = -16;
     } else {
         m_lufsTarget = target;

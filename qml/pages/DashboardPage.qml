@@ -70,6 +70,58 @@ Page {
             bottomPadding: 20
             spacing: 0
 
+            // ── Podcast info card ──────────────────────────
+            Rectangle {
+                width: parent.width - 40
+                anchors.horizontalCenter: parent.horizontalCenter
+                implicitHeight: podInfoRow.implicitHeight + 24
+                radius: 8
+                color: theme.bgSurface
+                border.color: theme.cardBorder; border.width: 1
+                visible: App.podcastInfo && App.podcastInfo.title
+
+                Row {
+                    id: podInfoRow
+                    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
+                    spacing: 12
+
+                    // Cover
+                    Rectangle {
+                        width: 64; height: 64; radius: 8; color: theme.bgInput
+                        visible: (App.podcastInfo.coverUrl || "") !== ""
+                        Image {
+                            anchors.fill: parent
+                            source: App.podcastInfo.coverUrl || ""
+                            fillMode: Image.PreserveAspectCrop
+                            visible: status === Image.Ready
+                        }
+                    }
+
+                    Column {
+                        width: parent.width - 76 - parent.spacing
+                        spacing: 4
+                        Label {
+                            text: App.podcastInfo.title || App.activePodcast
+                            color: theme.textPrimary
+                            font.pixelSize: 14; font.bold: true
+                            elide: Text.ElideRight; width: parent.width
+                        }
+                        Label {
+                            text: App.podcastInfo.description || ""
+                            color: theme.textMuted; font.pixelSize: 11
+                            maximumLineCount: 2; elide: Text.ElideRight
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                            width: parent.width
+                            visible: (App.podcastInfo.description || "").length > 0
+                        }
+                        Label {
+                            text: "@" + (App.podcastInfo.handle || App.activePodcast)
+                            color: theme.accentLight; font.pixelSize: 10
+                        }
+                    }
+                }
+            }
+
             // ── Stats ─────────────────────────────────────────
             Row {
                 width: parent.width
@@ -197,6 +249,74 @@ Page {
                     episode: modelData
                     width: parent.width - 40
                     anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
+
+            // ── Archivos temporales ──────────────────────────
+            Loader {
+                width: parent.width
+                active: tmpFilesList.length > 0
+                property var tmpFilesList: App.getTmpFiles()
+
+                sourceComponent: Column {
+                    width: parent.width
+                    spacing: 6
+                    topPadding: 16
+
+                    Row {
+                        leftPadding: 20
+                        spacing: 12
+                        Label {
+                            text: "Archivos temporales"
+                            color: theme.textSecondary; font.pixelSize: 12
+                            font.bold: true; font.letterSpacing: 1
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Button {
+                            text: "Limpiar todo"
+                            flat: true; font.pixelSize: 11
+                            Material.foreground: "#ef9a9a"
+                            onClicked: {
+                                App.clearAllTmpFiles()
+                                parent.parent.parent.tmpFilesList = App.getTmpFiles()
+                            }
+                        }
+                    }
+
+                    Repeater {
+                        model: parent.parent.tmpFilesList
+                        Rectangle {
+                            required property var modelData
+                            width: parent.width - 40
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            height: 40; radius: 6
+                            color: theme.bgSurface
+                            border.color: theme.cardBorder; border.width: 1
+
+                            Row {
+                                anchors { left: parent.left; right: parent.right; margins: 12; verticalCenter: parent.verticalCenter }
+                                spacing: 8
+                                Label {
+                                    text: modelData.name
+                                    color: theme.textMuted; font.pixelSize: 11
+                                    width: parent.width - 120
+                                    elide: Text.ElideMiddle
+                                }
+                                Label {
+                                    text: modelData.size + " MB"
+                                    color: theme.textMuted; font.pixelSize: 10
+                                }
+                                Button {
+                                    text: "✕"
+                                    flat: true; font.pixelSize: 12
+                                    Material.foreground: "#ef9a9a"
+                                    onClicked: {
+                                        App.deleteTmpFile(modelData.name)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

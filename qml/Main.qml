@@ -104,6 +104,7 @@ ApplicationWindow {
         }
     }
     Component { id: publishPage;   PublishPage   {} }
+    Component { id: episodesPage;  EpisodesPage  {} }
     Component { 
         id: draftsPage
         DraftsPage {
@@ -125,8 +126,9 @@ ApplicationWindow {
     function navigateTo(page) {
         const map = {
             dashboard: dashboardPage, publish: publishPage,
-            drafts: draftsPage,       templates: templatesPage,
-            podcasts: podcastsPage,   settings: settingsPage
+            episodes: episodesPage,   drafts: draftsPage,
+            templates: templatesPage, podcasts: podcastsPage,
+            settings: settingsPage
         }
         if (map[page]) stack.replace(map[page])
     }

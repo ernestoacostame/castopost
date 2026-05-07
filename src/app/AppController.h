@@ -35,6 +35,7 @@ class AppController : public QObject
     Q_PROPERTY(QString activePodcast READ activePodcast WRITE setActivePodcast
                NOTIFY activePodcastChanged)
     Q_PROPERTY(QVariantList podcasts READ podcasts NOTIFY podcastsChanged)
+    Q_PROPERTY(QVariantMap  podcastInfo READ podcastInfo NOTIFY podcastInfoChanged)
 
     // ── Episodios ────────────────────────────────────────────
     Q_PROPERTY(QVariantList episodes          READ episodes          NOTIFY episodesChanged)
@@ -60,6 +61,7 @@ public:
     bool    statusIsError()      const { return m_statusIsError; }
     QString activePodcast()      const { return m_activePodcast; }
     QVariantList podcasts()      const;
+    QVariantMap  podcastInfo()   const { return m_podcastInfo; }
     QVariantList episodes()      const { return m_episodes; }
     QVariantList drafts()        const { return m_drafts; }
     int  nextEpisodeNumber()     const { return m_nextEpisodeNumber; }
@@ -110,6 +112,9 @@ public:
     // ── Misc ─────────────────────────────────────────────────
     Q_INVOKABLE void clearStatus();
     Q_INVOKABLE bool ffmpegAvailable() const;
+    Q_INVOKABLE QVariantList getTmpFiles() const;
+    Q_INVOKABLE void deleteTmpFile(const QString &fileName);
+    Q_INVOKABLE void clearAllTmpFiles();
 
     // LUFS target
     Q_INVOKABLE void setLufsTarget(int target);
@@ -121,6 +126,7 @@ signals:
     void statusMessageChanged();
     void activePodcastChanged();
     void podcastsChanged();
+    void podcastInfoChanged();
     void episodesChanged();
     void localDraftsChanged();
     void conversionProgressChanged(int percent);
@@ -148,6 +154,7 @@ private:
     QString      m_activePodcast;
     QVariantList m_episodes;
     QVariantList m_drafts;
+    QVariantMap  m_podcastInfo;
     int          m_nextEpisodeNumber  = 1;
     bool         m_busy            = false;
     QString      m_statusMsg;

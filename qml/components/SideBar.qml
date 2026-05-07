@@ -39,6 +39,7 @@ Rectangle {
         // ── Navegación ────────────────────────────────────
         NavItem { icon: "⬡"; label: "Dashboard";  page: "dashboard"  }
         NavItem { icon: "＋"; label: "Publicar";   page: "publish"    }
+        NavItem { icon: "◉"; label: "Episodios";  page: "episodes"   }
         NavItem { icon: "✎"; label: "Borradores"; page: "drafts"     }
         NavItem { icon: "⊞"; label: "Plantillas"; page: "templates"  }
         NavItem { icon: "♫"; label: "Podcasts";   page: "podcasts"   }
