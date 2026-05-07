@@ -83,7 +83,7 @@ Rectangle {
             Text {
                 text: label
                 color: active ? theme.textOnDark : theme.textMutedOnDark
-                font.pixelSize: 12.5
+                font.pixelSize: 13
                 font.weight: active ? Font.Medium : Font.Normal
                 anchors.verticalCenter: parent.verticalCenter
             }
