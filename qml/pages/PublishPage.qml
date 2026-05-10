@@ -218,7 +218,7 @@ Page {
                         anchors.fill: parent
                         keys: ["text/uri-list"]
                         onDropped: (drop) => {
-                            root.audioFilePath = drop.urls[0].toLocalFile()
+                            root.audioFilePath = drop.urls[0].toString().replace("file://", "")
                         }
                     }
                     MouseArea {
@@ -718,13 +718,13 @@ Page {
         id: audioFileDialog
         title: "Seleccionar archivo de audio"
         nameFilters: ["Audio (*.mp3 *.wav *.ogg *.flac *.m4a *.opus *.webm *.aac)", "Todos (*)"]
-        onAccepted: root.audioFilePath = file.toLocalFile()
+        onAccepted: root.audioFilePath = file.toString().replace("file://", "")
     }
     Platform.FileDialog {
         id: coverFileDialog
         title: "Seleccionar portada"
         nameFilters: ["Imágenes (*.jpg *.jpeg *.png *.webp)", "Todos (*)"]
-        onAccepted: root.coverFilePath = file.toLocalFile()
+        onAccepted: root.coverFilePath = file.toString().replace("file://", "")
     }
     TemplatePickerDialog {
         id: templateDialog
